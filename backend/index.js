@@ -34,6 +34,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use("/", express.static(path.join(__dirname, "public")));
 
+// routes
+import songsRoutes from "./routes/songsRoutes.js";
+app.use("/songs", songsRoutes);
+
 app.all(/.*/, (req, res) => {
   res.status(404);
   if (req.accepts("json")) {
