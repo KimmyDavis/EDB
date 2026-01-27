@@ -8,6 +8,7 @@ import { fileURLToPath } from "url";
 import { logger, logEvents } from "./middleware/logger.js";
 import errorHandler from "./middleware/errorHandler.js";
 import corsOptions from "./config/corsOptions.js";
+import { dbMiddleware } from "./middleware/dbConnection.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -18,16 +19,12 @@ const PORT = process.env.PORT || 3500;
 app.use(cookieParser());
 app.use(cors(corsOptions));
 
-mongoose
-  .connect(process.env.MONGODB_URL)
-  .then(() => {
-    app.listen(PORT, () => {
-      console.log(`Connected to database and running on port ${PORT}`);
-    });
-  })
-  .catch((err) => {
-    console.log(err);
-  });
+// using the mongodb middleware to handle multiple instamce reconnects in a serverless environment
+app.use(dbMiddleware);
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
 
 app.use(logger);
 app.use(express.urlencoded({ extended: true }));

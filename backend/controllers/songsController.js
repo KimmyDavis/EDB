@@ -9,8 +9,17 @@ receives: song data in request body
 returns: the created song, or an error message in case of failure.
 */
 const createSong = async (req, res) => {
-  const { title, service, section, category, verses, chorus, bridge, links } =
-    req.body;
+  const {
+    title,
+    service,
+    section,
+    category,
+    verses,
+    chorus,
+    bridge,
+    links,
+    key,
+  } = req.body;
   if ((!title, !service, !verses?.length)) {
     return res.status(400).json({
       message:
@@ -33,7 +42,8 @@ const createSong = async (req, res) => {
   if (category) song["category"] = category;
   if (chorus) song["chorus"] = chorus;
   if (bridge) song["bridge"] = bridge;
-  if (links) song["links"] = section;
+  if (links) song["links"] = links;
+  if (key) song["key"] = key;
   const created = await Song.create(song);
   if (!created) {
     return res.status(500).json({
@@ -46,7 +56,7 @@ const createSong = async (req, res) => {
 
 /*
 querySongs
-method: POST
+method: GET
 does: queries the song database based on the given parameters
 receives: the parameters in the request query string
 returns: a list of songs matching the query criterion
@@ -65,7 +75,7 @@ const querySongs = async (req, res) => {
     }
     return res.status(200).json({ songs: [song] });
   }
-  const query = [];
+  const query = {};
   if (service && service === "undefined") query["service"] = service;
   if (section && section === "undefined") query["section"] = section;
   if (category && category === "undefined") query["category"] = category;

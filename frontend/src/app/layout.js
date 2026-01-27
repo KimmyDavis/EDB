@@ -1,4 +1,7 @@
+import Header from "@/components/Header";
 import "./globals.css";
+import StoreProvider from "@/lib/StoreProvider";
+import { Toaster } from "@/components/ui/sonner";
 
 export const metadata = {
   title: "Eglise de boumerdes",
@@ -8,11 +11,13 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body
-        className=""
-      >
-        {children}
-      </body>
+      <StoreProvider>
+        <body className="">
+          <Header />
+          {children}
+          <Toaster />
+        </body>
+      </StoreProvider>
     </html>
   );
 }

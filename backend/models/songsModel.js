@@ -28,7 +28,7 @@ const SongSchema = new mongoose.Schema(
         "offertory",
         "sanctus",
         "peace",
-        "agnus dei",
+        "agnus Dei",
         "holy communion",
         "thanksgiving",
         "exit",
@@ -54,9 +54,13 @@ const SongSchema = new mongoose.Schema(
       description: "The song's bridge if any.",
     },
     links: {
-      type: String,
+      type: [String],
       description:
         "A link to the song online... could be YouTube or any other online resource. Meant for practicing the song.",
+    },
+    key: {
+      type: String,
+      description: "The musical key for the song.",
     },
     code: {
       type: String,
