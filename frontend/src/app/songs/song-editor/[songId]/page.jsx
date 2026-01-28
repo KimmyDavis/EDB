@@ -1,7 +1,7 @@
 "use client";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import React, { useEffect, useRef, useState } from "react";
+import React, { use, useEffect, useRef, useState } from "react";
 
 // components
 import {
@@ -17,13 +17,31 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Toggle } from "@/components/ui/toggle";
 import { Switch } from "@/components/ui/switch";
-import { useCreateSongMutation } from "@/features/songs/songsApiSlice";
+import {
+  useCreateSongMutation,
+  useEditSongMutation,
+  useQuerySongsQuery,
+} from "@/features/songs/songsApiSlice";
 import { toast } from "sonner";
 
-const CreateSong = () => {
+const CreateSong = ({ params }) => {
   // hooks
+  const { songId } = use(params);
   const [submitSong, { isLoading, isSuccess, isError, error }] =
     useCreateSongMutation();
+  const [
+    editSong,
+    {
+      isLoading: isLoadingEdit,
+      isSuccess: isEditSuccess,
+      isError: isEditError,
+      error: editError,
+    },
+  ] = useEditSongMutation();
+  const { data: songData } = useQuerySongsQuery(
+    { id: songId },
+    { skip: songId === "new" }
+  );
   // page state
   const [title, setTitle] = useState("");
   const [service, setService] = useState("catholic");
@@ -34,6 +52,8 @@ const CreateSong = () => {
   const [bridge, setBridge] = useState("");
   const [links, setLinks] = useState([""]);
   const [inputError, setInputError] = useState("");
+  const [isEditing] = useState(songId !== "new");
+  const [pagePassword, setPagePassword] = useState("");
 
   // monitors
   const [hasChorus, setHasChorus] = useState(Boolean(chorus));
@@ -147,12 +167,31 @@ const CreateSong = () => {
     if (hasBridge && bridge) readySong = { ...readySong, bridge };
     if (hasLinks && links.filter((l) => l != "")?.length)
       readySong = { ...readySong, links: links.filter((l) => l != "") };
-    console.log(readySong);
-    await submitSong(readySong);
+    if (isEditing) {
+      const editData = await editSong({ ...readySong, id: songId });
+    } else {
+      await submitSong(readySong);
+    }
     setInputError("");
   };
 
   // effects
+  useEffect(() => {
+    if (songData) {
+      const song = songData?.songs[0];
+      setTitle(song?.title);
+      setService(song?.service);
+      setSection(song?.section);
+      setCategory(song?.category);
+      setVerses(song?.verses);
+      setChorus(song?.chorus);
+      setBridge(song?.bridge);
+      setLinks(song?.links);
+      setHasChorus(Boolean(song?.chorus));
+      setHasBridge(Boolean(song?.Bridge));
+      setHasLinks(Boolean(song?.links?.length));
+    }
+  }, [songData]);
   useEffect(() => {
     setInputError("");
   }, [title, service, section, category, verses, chorus, bridge, links]);
@@ -176,6 +215,32 @@ const CreateSong = () => {
       setInputError("");
     }
   }, [inputError]);
+
+  useEffect(() => {
+    if (isSuccess || isEditSuccess) {
+      toast.success("Successfully submitted! 🥳");
+    }
+  }, [isSuccess, isEditSuccess]);
+
+  useEffect(() => {
+    if (isError || isEditError) {
+      toast.success("Failed! 😔");
+    }
+  }, [isError, isEditError]);
+
+  if (pagePassword !== "123123") {
+    return (
+      <div className="pword w-full flex items-center justify-center">
+        <input
+          type="password"
+          placeholder="enter password"
+          value={pagePassword}
+          className="w-44 mt-10 text-center border p-3 text-lg rounded-md"
+          onChange={(e) => setPagePassword(e.target.value)}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="w-full p-10 flex flex-col gap-8 items-center">
@@ -206,7 +271,7 @@ const CreateSong = () => {
         </Select>
       </div>
       {/* section and category section */}
-      <div className="section-category w-full max-w-200">
+      <div className="section-category w-full max-w-200 flex flex-col gap-3">
         {["catholic", "both"].includes(service) && (
           <div className="catholic flex flex-row gap-2 w-full">
             <Label className="min-w-24">Section of Mass: </Label>
@@ -254,7 +319,7 @@ const CreateSong = () => {
       </div>
       {/* verses section */}
       <div className="verses w-full max-w-200 flex flex-col gap-2">
-        <h3 className="verses font-semibold text-lg">Song Verses</h3>
+        <h3 className="verses text-lg">Song Verses</h3>
         {verses.map((verse, i) => {
           return (
             <div key={i} className="verse mb-1">
@@ -360,10 +425,10 @@ const CreateSong = () => {
       <div className="submit w-full max-w-200 flex flex-row">
         <Button
           onClick={handleSubmit}
-          disabled={isLoading}
+          disabled={isLoading || isLoadingEdit}
           className="ml-auto mr-2"
         >
-          {isLoading ? "Submitting..." : "Submit"}
+          {isLoading || isLoadingEdit ? "Submitting..." : "Submit"}
         </Button>
       </div>
     </div>

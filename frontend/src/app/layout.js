@@ -2,6 +2,7 @@ import Header from "@/components/Header";
 import "./globals.css";
 import StoreProvider from "@/lib/StoreProvider";
 import { Toaster } from "@/components/ui/sonner";
+import Prefetcher from "@/components/Prefetcher";
 
 export const metadata = {
   title: "Eglise de boumerdes",
@@ -14,6 +15,7 @@ export default function RootLayout({ children }) {
       <StoreProvider>
         <body className="">
           <div className="main-cont relative pt-24 min-h-screen w-lvw">
+            <Prefetcher />
             <Header />
             {children}
             <Toaster />

@@ -1,25 +1,17 @@
 "use client";
-import { useQuerySongsQuery } from "@/features/songs/songsApiSlice";
+import { selectAllSongs } from "@/features/songs/songsApiSlice";
 import { useRouter } from "next/navigation";
 import React, { use } from "react";
+import { useSelector } from "react-redux";
 
 const page = ({ params }) => {
+  const allSongsData = useSelector(selectAllSongs);
   const { songCode } = use(params);
-  const { data, isLoading, isError, error } = useQuerySongsQuery({
-    code: songCode,
-  });
-  const song = data?.songs?.[0];
-  console.log(song);
-  if (isLoading) {
+  const song = allSongsData?.songs?.filter((s) => s.code === songCode)?.[0];
+  if (!song) {
     return (
       <div className="loading">
-        <span>Loading song...</span>
-      </div>
-    );
-  } else if (isError) {
-    return (
-      <div className="error">
-        <span>Error loading song :(</span>
+        <span>Not yet found... 🥲</span>
       </div>
     );
   }
