@@ -13,9 +13,11 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <StoreProvider>
         <body className="">
-          <Header />
-          {children}
-          <Toaster />
+          <div className="main-cont relative pt-24 min-h-screen w-lvw">
+            <Header />
+            {children}
+            <Toaster />
+          </div>
         </body>
       </StoreProvider>
     </html>

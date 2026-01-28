@@ -167,12 +167,14 @@ const CreateSong = () => {
   }, [links]);
 
   useEffect(() => {
-    if (inputError !== "")
+    if (inputError !== "") {
       toast.error(inputError, {
         duration: 2000,
         position: "top-center",
         style: { accentColor: "red" },
       });
+      setInputError("");
+    }
   }, [inputError]);
 
   return (

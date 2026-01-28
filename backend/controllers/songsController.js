@@ -63,6 +63,7 @@ returns: a list of songs matching the query criterion
 */
 const querySongs = async (req, res) => {
   const { id, service, section, category, title, code } = req.query;
+  console.log(req.query);
   if (id && id !== "undefined") {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ message: "Please provide a valid id." });
@@ -76,11 +77,12 @@ const querySongs = async (req, res) => {
     return res.status(200).json({ songs: [song] });
   }
   const query = {};
-  if (service && service === "undefined") query["service"] = service;
-  if (section && section === "undefined") query["section"] = section;
-  if (category && category === "undefined") query["category"] = category;
-  if (title && title === "undefined") query["title"] = title;
-  if (code && code === "undefined") query["code"] = code;
+  if (service && service !== "undefined") query["service"] = service;
+  if (section && section !== "undefined") query["section"] = section;
+  if (category && category !== "undefined") query["category"] = category;
+  if (title && title !== "undefined") query["title"] = title;
+  if (code && code !== "undefined") query["code"] = code;
+  console.log(query);
   const songs = await Song.find(query).lean();
   if (!songs?.length) {
     return res.status(404).json({ message: "No song matches your query." });
