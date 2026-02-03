@@ -23,9 +23,14 @@ import {
   useQuerySongsQuery,
 } from "@/features/songs/songsApiSlice";
 import { toast } from "sonner";
+import SongDisplay from "@/components/SongDisplay";
+import { ArrowUp } from "lucide-react";
+import { ArrowDown } from "lucide-react";
+import useAuth from "@/hooks/use-auth";
 
 const CreateSong = ({ params }) => {
   // hooks
+  const { isEditor } = useAuth();
   const { songId } = use(params);
   const [submitSong, { isLoading, isSuccess, isError, error }] =
     useCreateSongMutation();
@@ -51,9 +56,10 @@ const CreateSong = ({ params }) => {
   const [chorus, setChorus] = useState("");
   const [bridge, setBridge] = useState("");
   const [links, setLinks] = useState([""]);
+  const [structure, setStructure] = useState([]);
   const [inputError, setInputError] = useState("");
   const [isEditing] = useState(songId !== "new");
-  const [pagePassword, setPagePassword] = useState("");
+  const [song, setSong] = useState(songData || {});
 
   // monitors
   const [hasChorus, setHasChorus] = useState(Boolean(chorus));
@@ -134,6 +140,38 @@ const CreateSong = ({ params }) => {
       handleAddLink();
     }
   };
+  const handleBridgeShift = (dir) => {
+    let theStructure = structure;
+    const bridgePos = theStructure.indexOf("bridge");
+    if (dir === "up" && bridgePos > 0) {
+      theStructure[bridgePos] = theStructure[bridgePos - 1];
+      theStructure[bridgePos - 1] = "bridge";
+    } else if (dir === "down" && bridgePos < theStructure.length - 1) {
+      theStructure[bridgePos] = theStructure[bridgePos + 1];
+      theStructure[bridgePos + 1] = "bridge";
+    }
+    setStructure([...theStructure]);
+  };
+  const handleSetStructureTemplate = (tmp) => {
+    let theStructure = [];
+    switch (tmp) {
+      case 1:
+        if (hasChorus) theStructure[0] = "chorus";
+        if (hasBridge) theStructure = [...theStructure, "bridge"];
+        for (let i in verses.filter((v) => v != ""))
+          theStructure = [...theStructure, "verse"];
+        setStructure(theStructure);
+        break;
+      case 2:
+        if (hasBridge) theStructure[0] = "bridge";
+        for (let i in verses.filter((v) => v != "")) {
+          theStructure = [...theStructure, "verse"];
+          if (hasChorus) theStructure = [...theStructure, "chorus"];
+        }
+        setStructure(theStructure);
+        break;
+    }
+  };
 
   const handleSubmit = async () => {
     if (!title) return setInputError("song title is required.");
@@ -160,6 +198,7 @@ const CreateSong = ({ params }) => {
       title,
       service,
       verses: verses.filter((v) => v != ""),
+      structure,
     };
     if (section) readySong = { ...readySong, section };
     if (category) readySong = { ...readySong, category };
@@ -194,11 +233,53 @@ const CreateSong = ({ params }) => {
   }, [songData]);
   useEffect(() => {
     setInputError("");
-  }, [title, service, section, category, verses, chorus, bridge, links]);
+    setSong({ title, links, chorus, bridge, verses, structure });
+  }, [
+    title,
+    service,
+    section,
+    category,
+    verses,
+    chorus,
+    bridge,
+    links,
+    structure,
+  ]);
   useEffect(() => {
     // if (lastVerseRef.current && verses?.[verses?.length - 1] == "")
     // lastVerseRef.current.focus();
+    let theStructure = structure;
+    while (
+      theStructure.filter((elm) => elm == "verse").length !=
+      verses.filter((v) => v != "").length
+    ) {
+      if (
+        theStructure.filter((elm) => elm == "verse").length <
+        verses.filter((v) => v != "").length
+      ) {
+        theStructure = [...theStructure, "verse"];
+      } else {
+        theStructure = [...theStructure.filter((elm) => elm != "verse")];
+      }
+    }
+    setStructure(theStructure);
   }, [verses]);
+  useEffect(() => {
+    if (hasChorus && !structure.includes("chorus")) {
+      setStructure(["chorus", ...structure]);
+    } else if (!hasChorus) {
+      setStructure([...structure.filter((elm) => elm != "chorus")]);
+    }
+  }, [hasChorus]);
+  useEffect(() => {
+    let theStructure = structure;
+    if (hasBridge && !theStructure.includes("bridge")) {
+      theStructure.splice(theStructure.indexOf("chorus") + 1, 0, "bridge");
+    } else if (!hasBridge) {
+      theStructure = theStructure.filter((elm) => elm != "bridge");
+    }
+    setStructure(theStructure);
+  }, [hasBridge]);
 
   useEffect(() => {
     // if (lastLinRef.current && links?.[links?.length - 1] == "")
@@ -228,16 +309,10 @@ const CreateSong = ({ params }) => {
     }
   }, [isError, isEditError]);
 
-  if (pagePassword !== "123123") {
+  if (!isEditor) {
     return (
       <div className="pword w-full flex items-center justify-center">
-        <input
-          type="password"
-          placeholder="enter password"
-          value={pagePassword}
-          className="w-44 mt-10 text-center border p-3 text-lg rounded-md"
-          onChange={(e) => setPagePassword(e.target.value)}
-        />
+        <p>You are not allowed to access this content.</p>
       </div>
     );
   }
@@ -421,6 +496,50 @@ const CreateSong = ({ params }) => {
           )}
         </div>
       )}
+      {/* song Structure */}
+      <div className="song-structure w-full max-w-200 flex flex-col bg-red-50 p-2 rounded-md">
+        <h3 className="text-xl mb-2">Song Structure</h3>
+        <div className="template flex flex-row gap-2 pl-3">
+          {/* <Label className="">Choose Template: </Label>  */}
+          <Select onValueChange={handleSetStructureTemplate}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Select a template" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel>Templates</SelectLabel>
+                {[1, 2].map((template, i) => {
+                  return (
+                    <SelectItem value={template} key={i}>
+                      Template {template}
+                    </SelectItem>
+                  );
+                })}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+          {hasBridge && bridge && (
+            <div className="bridge-shift flex flex-row items-center justify-center ml-auto mr-auto gap-1">
+              <Button
+                onClick={() => handleBridgeShift("up")}
+                disabled={structure.indexOf("bridge") == 0}
+              >
+                <ArrowUp />
+              </Button>
+              <span>bridge</span>
+              <Button
+                onClick={() => handleBridgeShift("down")}
+                disabled={structure.indexOf("bridge") == structure.length - 1}
+              >
+                <ArrowDown />
+              </Button>
+            </div>
+          )}
+        </div>
+        <div className="song-preview flex flex-col items-start justify-start">
+          <SongDisplay className="text-xs" song={song} partTitles={false} />
+        </div>
+      </div>
       {/* submit button */}
       <div className="submit w-full max-w-200 flex flex-row">
         <Button
