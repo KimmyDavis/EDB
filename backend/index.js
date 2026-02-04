@@ -33,7 +33,9 @@ app.use("/", express.static(path.join(__dirname, "public")));
 
 // routes
 import songsRoutes from "./routes/songsRoutes.js";
+import massRoutes from "./routes/massRoutes.js";
 app.use("/songs", songsRoutes);
+app.use("/mass", massRoutes);
 
 app.all(/.*/, (req, res) => {
   res.status(404);

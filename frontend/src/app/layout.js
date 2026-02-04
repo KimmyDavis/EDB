@@ -14,7 +14,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <StoreProvider>
         <body className="">
-          <div className="main-cont relative pt-24 min-h-screen w-lvw">
+          <div className="main-cont relative pt-24 min-h-screen w-full">
             <Prefetcher />
             <Header />
             {children}

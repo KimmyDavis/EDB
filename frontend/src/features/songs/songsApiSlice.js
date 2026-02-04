@@ -39,7 +39,18 @@ import { createSelector } from "@reduxjs/toolkit";
 
 export const selectAllSongs = createSelector(
   selectSongsData,
-  (songsResult) => songsResult.data ?? [] // Returns the transformed data or empty array
+  (songsResult) => {
+    let songsData = {};
+    songsData["data"] = songsResult?.data;
+    songsData["isError"] = songsResult?.isError;
+    songsData["isLoading"] = songsResult?.isLoading;
+    songsData["error"] = songsResult?.error;
+    return songsData;
+  } // Returns the transformed data or empty array
 );
 
-export const { useCreateSongMutation, useQuerySongsQuery, useEditSongMutation } = songsApiSlice;
+export const {
+  useCreateSongMutation,
+  useQuerySongsQuery,
+  useEditSongMutation,
+} = songsApiSlice;

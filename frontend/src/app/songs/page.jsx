@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import { selectAllSongs } from "@/features/songs/songsApiSlice";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
@@ -9,18 +9,28 @@ import { Button } from "@/components/ui/button";
 
 const Songs = () => {
   const router = useRouter();
-  const songsData = useSelector(selectAllSongs) || [];
+  const {
+    data: songsData,
+    isLoading = true,
+    isError,
+  } = useSelector(selectAllSongs) || [];
   console.log(songsData);
   let songs = songsData?.songs;
   console.log(songs);
   let theDom = null;
 
+  useEffect(() => {
+    console.log(isLoading, isError);
+  }, [isLoading]);
+
   theDom = (
     <div className="songs flex flex-col gap-2 w-full max-w-200">
-      {!songs?.length ? (
-        <span>Searching songs. 🥲</span>
+      {isLoading ? (
+        <span className="text-center w-full">Searching songs... 🥲</span>
+      ) : isError ? (
+        <span>Failed to fetch songs. 🥲</span>
       ) : (
-        songs.map((song) => {
+        songs?.map((song) => {
           const theDate = new Intl.DateTimeFormat("en-US", {
             dateStyle: "short",
           }).format(new Date(song.createdAt));

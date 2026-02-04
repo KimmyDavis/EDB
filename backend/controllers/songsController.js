@@ -19,6 +19,7 @@ const createSong = async (req, res) => {
     bridge,
     links,
     key,
+    structure
   } = req.body;
   if ((!title, !service, !verses?.length)) {
     return res.status(400).json({
@@ -44,6 +45,7 @@ const createSong = async (req, res) => {
   if (bridge) song["bridge"] = bridge;
   if (links) song["links"] = links;
   if (key) song["key"] = key;
+  if (structure) song["structure"] = structure;
   const created = await Song.create(song);
   if (!created) {
     return res.status(500).json({

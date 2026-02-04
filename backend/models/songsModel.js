@@ -66,6 +66,10 @@ const SongSchema = new mongoose.Schema(
       type: String,
       default: randomCode(),
     },
+    structure: {
+      type: [String],
+      description: "The top to bottom structure of a song",
+    },
   },
   { timestamps: true }
 );
