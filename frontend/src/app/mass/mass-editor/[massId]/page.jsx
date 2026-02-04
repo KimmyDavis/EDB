@@ -30,7 +30,7 @@ import {
   useQueryMassQuery,
 } from "@/features/mass/massApiSlice";
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 const starterMassTemplate = {
   acclamation: {
