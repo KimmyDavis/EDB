@@ -7,34 +7,70 @@ import { Plus } from "lucide-react";
 import useAuth from "@/hooks/use-auth";
 import { Input } from "./ui/input";
 import { Unlock } from "lucide-react";
+import { Church } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+const endpoints = [
+  {
+    title: "add song",
+    path: "/songs/song-editor/new",
+    icon: <Plus />,
+  },
+  {
+    title: "Create Mass",
+    path: "/mass/mass-editor/new",
+    icon: <Pencil />,
+  },
+  {
+    title: "View mass",
+    path: "/mass",
+    icon: <Church />,
+  },
+];
 
 const Header = () => {
   const router = useRouter();
   const pathname = usePathname();
   const { isEditor } = useAuth();
   const [pword, setPword] = useState("");
+  const [atHome, setAtHome] = useState(false);
+  const [currentLocation, setCurrentLocation] = useState("");
+
+  // handlers
   const handleBecomeEditor = () => {
     if (pword == "123123") {
       localStorage.setItem("isEditor", JSON.stringify(true));
       window.location.href = window.location.href;
     }
   };
-  const [atHome, setAtHome] = useState(false);
+
   useEffect(() => {
     setAtHome(pathname.split("/").filter((p) => p != "").length == 0);
   }, [pathname]);
   useEffect(() => {
     console.log("at home => ", atHome, pathname);
   }, [atHome]);
+  useEffect(() => {
+    router.push(currentLocation);
+  }, [currentLocation]);
   return (
     <div className="bg-primary absolute top-0 left-0 w-full h-24 text-primary-foreground flex flex-row items-center p-3 select-none">
       <h1
-        className="text-3xl font-bold cursor-pointer"
+        className={`text-3xl font-bold cursor-pointer ${
+          !isEditor && atHome && "w-full text-center"
+        }`}
         onClick={isEditor ? () => router.push("/") : () => {}}
       >
         EDB
       </h1>
-      {atHome && (
+      {(atHome || isEditor) && (
         <nav className="ml-auto flex flex-row gap-2">
           {!isEditor ? (
             <div className="password-entry flex flex-row">
@@ -48,29 +84,23 @@ const Header = () => {
               </Button>
             </div>
           ) : (
-            <>
-              <Button
-                className="cursor-pointer shadow-xs shadow-white"
-                onClick={() => router.push("/songs/song-editor/new")}
-              >
-                <Plus />
-                add song
-              </Button>
-              <Button
-                className="cursor-pointer p-3 text-lg shadow-xs shadow-white"
-                onClick={() => router.push("/mass/mass-editor/new")}
-              >
-                <Pencil />
-                Create Mass
-              </Button>
-              <Button
-                className="cursor-pointer p-3 text-lg shadow-xs shadow-white"
-                onClick={() => router.push("/mass")}
-              >
-                <Pencil />
-                View mass
-              </Button>
-            </>
+            <Select onValueChange={setCurrentLocation} value={currentLocation}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="home" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>song type</SelectLabel>
+                  {endpoints.map((ep, i) => {
+                    return (
+                      <SelectItem value={ep.path} key={i}>
+                        {ep.icon} {ep.title}
+                      </SelectItem>
+                    );
+                  })}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
           )}
         </nav>
       )}

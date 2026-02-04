@@ -271,6 +271,22 @@ const CreateSong = ({ params }) => {
   useEffect(() => {
     if (isSuccess || isEditSuccess) {
       toast.success("Successfully submitted! 🥳");
+
+      setTitle("");
+      setService("catholic");
+      setSection("");
+      setCategory("");
+      setVerses([""]);
+      setChorus("");
+      setBridge("");
+      setLinks([""]);
+      setStructure([]);
+      setInputError("");
+      isEditing(false);
+      setSong({});
+      setHasChorus(false);
+      setHasBridge(false);
+      setHasLinks(true);
     }
   }, [isSuccess, isEditSuccess]);
 

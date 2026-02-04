@@ -74,6 +74,19 @@ const ShowMass = ({ params }) => {
               </div>
             );
           }
+          if (section === "psalmResponse" && mass?.["psalmResponse"]) {
+            return (
+              <div
+                key={section + "-recited-" + i}
+                className="recited italic text-center"
+              >
+                <h3 className="section-title  capitalize text-2xl font-bold mt-20">
+                  {handleSectionName("psalm response")}
+                </h3>
+                {mass?.["psalmResponse"]}
+              </div>
+            );
+          }
           if (mass?.[section]?.songId) {
             return (
               <div className="song-body-mass" key={section + " " + i}>
