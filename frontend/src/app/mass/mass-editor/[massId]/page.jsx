@@ -30,9 +30,30 @@ import {
   useQueryMassQuery,
 } from "@/features/mass/massApiSlice";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/router";
+import { toast } from "sonner";
+const starterMassTemplate = {
+  acclamation: {
+    recited: false,
+  },
+  creed: {
+    included: true,
+    recited: false,
+  },
+  LordsPrayer: {
+    recited: true,
+  },
+  thanksGiving: {
+    included: true,
+  },
+  gloria: {
+    included: true,
+  },
+};
 
 const MassEditor = ({ params }) => {
   // hooks
+  const router = useRouter();
   const { massId } = use(params);
   const { isEditor } = useAuth();
   const { data: songsData, isLoading, isError } = useSelector(selectAllSongs);
@@ -70,24 +91,7 @@ const MassEditor = ({ params }) => {
 
   // state
   const [isEditingMass, setIsEditingMass] = useState(massId != "new" ?? false);
-  const [mass, setMass] = useState({
-    acclamation: {
-      recited: false,
-    },
-    creed: {
-      included: true,
-      recited: false,
-    },
-    LordsPrayer: {
-      recited: true,
-    },
-    thanksGiving: {
-      included: true,
-    },
-    gloria: {
-      included: true,
-    },
-  });
+  const [mass, setMass] = useState(starterMassTemplate);
   const [canSave, setCanSave] = useState(false);
 
   // handlers
@@ -113,6 +117,23 @@ const MassEditor = ({ params }) => {
       setMass(massToEdit?.mass[0] ?? { ...mass });
     console.log(massToEdit?.mass[0]);
   }, [massToEdit]);
+
+  useEffect(() => {
+    if (isEditSuccess || isCreateSuccess) {
+      toast.success("Mass successfully submitted! 🥳", {
+        position: "top-center",
+      });
+      setMass(starterMassTemplate);
+      router.push("/mass");
+    }
+  }, [isCreateSuccess, isEditSuccess]);
+  useEffect(() => {
+    if (isCreateError || isEditError) {
+      toast.error("Failed to submit 😔", { position: "top-center" });
+      setMass(starterMassTemplate);
+      router.push("/mass");
+    }
+  }, [isCreateError, isEditError]);
 
   if (!isEditor) {
     return (
@@ -500,7 +521,9 @@ const MassEditor = ({ params }) => {
                     <SelectGroup>
                       <SelectLabel>Lord's Prayer songs</SelectLabel>
                       {songs
-                        ?.filter((s) => s.section == "LordsPrayer")
+                        ?.filter((s) =>
+                          ["Lord's prayer", "LordsPrayer"].includes(s.section)
+                        )
                         ?.map((song, i) => {
                           return (
                             <SelectItem
@@ -619,7 +642,9 @@ const MassEditor = ({ params }) => {
                   <SelectGroup>
                     <SelectLabel>Agnus Dei songs</SelectLabel>
                     {songs
-                      ?.filter((s) => s.section == "agnusDei")
+                      ?.filter((s) =>
+                        ["agnus dei", "agnusDei"].includes(s.section)
+                      )
                       ?.map((song, i) => {
                         return (
                           <SelectItem value={song._id} key={"agnusDei" + i}>
@@ -651,7 +676,9 @@ const MassEditor = ({ params }) => {
                   <SelectGroup>
                     <SelectLabel>Holy Communion songs</SelectLabel>
                     {songs
-                      ?.filter((s) => s.section == "holyCommunion")
+                      ?.filter((s) =>
+                        ["holy communion", "holyCommunion"].includes(s.section)
+                      )
                       ?.map((song, i) => {
                         return (
                           <SelectItem
