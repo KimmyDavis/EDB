@@ -24,6 +24,12 @@ import { useSelector } from "react-redux";
 import { selectAllSongs } from "@/features/songs/songsApiSlice";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import {
+  useCreateMassMutation,
+  useEditMassMutation,
+  useQueryMassQuery,
+} from "@/features/mass/massApiSlice";
+import { Button } from "@/components/ui/button";
 
 const MassEditor = ({ params }) => {
   // hooks
@@ -31,9 +37,39 @@ const MassEditor = ({ params }) => {
   const { isEditor } = useAuth();
   const { data: songsData, isLoading, isError } = useSelector(selectAllSongs);
   const songs = songsData?.songs || [];
+  const {
+    data: massToEdit,
+    isLoading: massToEditLoading,
+    isError: massToEditIsError,
+    error: massToeditError,
+  } = useQueryMassQuery({ id: massId }, { skip: massId == "new" });
+  // console.log(
+  //   massToEdit,
+  //   massToEditLoading,
+  //   massToEditIsError,
+  //   massToeditError
+  // );
+  const [
+    createMass,
+    {
+      isLoading: isCreating,
+      isError: isCreateError,
+      isSuccess: isCreateSuccess,
+      error: createError,
+    },
+  ] = useCreateMassMutation();
+  const [
+    editMass,
+    {
+      isLoading: isSubmittingEdit,
+      isError: isEditError,
+      isSuccess: isEditSuccess,
+      error: editError,
+    },
+  ] = useEditMassMutation();
 
   // state
-  const [date, setDate] = useState(new Date());
+  const [isEditingMass, setIsEditingMass] = useState(massId != "new" ?? false);
   const [mass, setMass] = useState({
     acclamation: {
       recited: false,
@@ -52,18 +88,31 @@ const MassEditor = ({ params }) => {
       included: true,
     },
   });
+  const [canSave, setCanSave] = useState(false);
 
   // handlers
   const handleUpdateMass = (field, value) => {
-    let tmpMass = mass;
+    let tmpMass = { ...mass };
     tmpMass[field] = value;
     setMass({ ...tmpMass });
+  };
+  const handleSubmit = async () => {
+    if (isEditingMass) {
+      await editMass({ ...mass, id: massId });
+    } else {
+      await createMass(mass);
+    }
   };
 
   // effects
   useEffect(() => {
-    console.log(mass);
+    setCanSave(mass.title && mass.date);
   }, [mass]);
+  useEffect(() => {
+    if (massToEdit && !massToEditIsError)
+      setMass(massToEdit?.mass[0] ?? { ...mass });
+    console.log(massToEdit?.mass[0]);
+  }, [massToEdit]);
 
   if (!isEditor) {
     return (
@@ -72,17 +121,43 @@ const MassEditor = ({ params }) => {
       </div>
     );
   }
+  if (isLoading) {
+    return <div className="loading">Loading song library...</div>;
+  }
+  if (isError) {
+    return <div className="error">Error loading song library...</div>;
+  }
+  if (!songs?.length) {
+    return (
+      <div className="no songs">
+        No song found... try reloading or adding a song.
+      </div>
+    );
+  }
+
+  if (massToEditLoading) {
+    return <div className="loading">Loading mass...</div>;
+  }
+  if (massToEditIsError) {
+    return (
+      <div className="loading">
+        Error Loading mass... {massToeditError?.data?.message}
+      </div>
+    );
+  }
 
   return (
     <div className="mass-editor flex items-center justify-center p-5 w-full">
       <FieldSet className="w-full">
-        <FieldGroup className="flex flex-row flex-nowrap w-full">
-          <div className="section-one w-1/2 min-w-80 p-3 flex flex-col gap-10">
+        <FieldGroup className="flex sm:flex-row flex-col w-full">
+          <div className="section-one sm:w-1/2 w-full min-w-80 p-3 flex flex-col gap-10">
             <Field>
               <FieldLabel htmlFor="title">Title</FieldLabel>
               <Input
                 id="title"
                 type="text"
+                value={mass?.title || ""}
+                onChange={(e) => handleUpdateMass("title", e.target.value)}
                 placeholder="Thanksgiving mass..."
               />
               <FieldDescription>Title for the mass.</FieldDescription>
@@ -92,8 +167,8 @@ const MassEditor = ({ params }) => {
               <FieldDescription>Date of the mass.</FieldDescription>
               <Calendar
                 mode="single"
-                selected={date}
-                onSelect={setDate}
+                selected={mass?.date || new Date()}
+                onSelect={(val) => handleUpdateMass("date", val)}
                 className="rounded-lg border max-w-80 w-full"
                 captionLayout="dropdown"
               />
@@ -105,8 +180,11 @@ const MassEditor = ({ params }) => {
               </FieldDescription>
               <Textarea
                 id="psalm"
-                // value={verse}
-                // onChange={(e) => handleVerseEdit(e, i)}
+                value={mass?.psalmResponse || ""}
+                onChange={(e) =>
+                  handleUpdateMass("psalmResponse", e.target.value)
+                }
+                placeholder="type here..."
                 className=""
               />
             </Field>
@@ -117,18 +195,22 @@ const MassEditor = ({ params }) => {
               </FieldDescription>
               <Textarea
                 id="notes"
-                // value={verse}
-                // onChange={(e) => handleVerseEdit(e, i)}
+                value={mass?.notes || ""}
+                onChange={(e) => handleUpdateMass("notes", e.target.value)}
+                placeholder="type here..."
                 className=""
               />
             </Field>
           </div>
-          <div className="section-2 w-1/2 min-w-80 p-2 flex flex-col gap-3 pr-10">
+          <div className="section-2 sm:w-1/2 w-full min-w-80 p-2 pb-10 flex flex-col gap-8 pr-10">
+            <h3 className="h3 text-xl font-semibold">Songs</h3>
             <Field>
               <FieldLabel htmlFor="entrance">Entrance</FieldLabel>
               <Select
-                onValueChange={(id) => handleUpdateMass("entrance", { id })}
-                value={mass?.entrance?.id || ""}
+                onValueChange={(songId) =>
+                  handleUpdateMass("entrance", { ...mass?.entrance, songId })
+                }
+                value={mass?.entrance?.songId || ""}
                 id="entrance"
               >
                 <SelectTrigger className="w-[180px]">
@@ -154,8 +236,10 @@ const MassEditor = ({ params }) => {
             <Field>
               <FieldLabel htmlFor="kyrie">Kyrie</FieldLabel>
               <Select
-                onValueChange={(id) => handleUpdateMass("kyrie", { id })}
-                value={mass?.kyrie?.id || ""}
+                onValueChange={(songId) =>
+                  handleUpdateMass("kyrie", { ...mass?.kyrie, songId })
+                }
+                value={mass?.kyrie?.songId || ""}
                 id="kyrie"
               >
                 <SelectTrigger className="w-[180px]">
@@ -213,8 +297,10 @@ const MassEditor = ({ params }) => {
               </FieldLabel>
               {mass?.gloria?.included && (
                 <Select
-                  onValueChange={(id) => handleUpdateMass("gloria", { id })}
-                  value={mass?.gloria?.id || ""}
+                  onValueChange={(songId) =>
+                    handleUpdateMass("gloria", { ...mass?.gloria, songId })
+                  }
+                  value={mass?.gloria?.songId || ""}
                   id="gloria"
                 >
                   <SelectTrigger className="w-[180px]">
@@ -256,8 +342,13 @@ const MassEditor = ({ params }) => {
                 </div>
               </FieldLabel>
               <Select
-                onValueChange={(id) => handleUpdateMass("acclamation", { id })}
-                value={mass?.acclamation?.id || ""}
+                onValueChange={(songId) =>
+                  handleUpdateMass("acclamation", {
+                    ...mass?.acclamation,
+                    songId,
+                  })
+                }
+                value={mass?.acclamation?.songId || ""}
                 id="acclamation"
               >
                 <SelectTrigger className="w-[180px]">
@@ -315,8 +406,10 @@ const MassEditor = ({ params }) => {
               </FieldLabel>
               {mass?.creed?.included && !mass?.creed?.recited && (
                 <Select
-                  onValueChange={(id) => handleUpdateMass("creed", { id })}
-                  value={mass?.creed?.id || ""}
+                  onValueChange={(songId) =>
+                    handleUpdateMass("creed", { ...mass?.creed, songId })
+                  }
+                  value={mass?.creed?.songId || ""}
                   id="creed"
                 >
                   <SelectTrigger className="w-[180px]">
@@ -341,6 +434,38 @@ const MassEditor = ({ params }) => {
             </Field>
 
             <Field>
+              <FieldLabel htmlFor="petition">Petitions Song</FieldLabel>
+              <Select
+                onValueChange={(songId) =>
+                  handleUpdateMass("petition", {
+                    ...mass?.petition,
+                    songId,
+                  })
+                }
+                value={mass?.petition?.songId || ""}
+                id="petition"
+              >
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Lord's Prayer song" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Petition songs</SelectLabel>
+                    {songs
+                      ?.filter((s) => s.section == "petition")
+                      ?.map((song, i) => {
+                        return (
+                          <SelectItem value={song._id} key={"petition" + i}>
+                            {song.title}
+                          </SelectItem>
+                        );
+                      })}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </Field>
+
+            <Field>
               <FieldLabel htmlFor="LordsPrayer">
                 Lord's Prayer
                 <div className="flex items-center space-x-2">
@@ -359,10 +484,13 @@ const MassEditor = ({ params }) => {
               </FieldLabel>
               {!mass?.LordsPrayer?.recited && (
                 <Select
-                  onValueChange={(id) =>
-                    handleUpdateMass("LordsPrayer", { id })
+                  onValueChange={(songId) =>
+                    handleUpdateMass("LordsPrayer", {
+                      ...mass?.LordsPrayer,
+                      songId,
+                    })
                   }
-                  value={mass?.LordsPrayer?.id || ""}
+                  value={mass?.LordsPrayer?.songId || ""}
                   id="LordsPrayer"
                 >
                   <SelectTrigger className="w-[180px]">
@@ -392,8 +520,10 @@ const MassEditor = ({ params }) => {
             <Field>
               <FieldLabel htmlFor="offertory">Offertory</FieldLabel>
               <Select
-                onValueChange={(id) => handleUpdateMass("offertory", { id })}
-                value={mass?.offertory?.id || ""}
+                onValueChange={(songId) =>
+                  handleUpdateMass("offertory", { ...mass?.offertory, songId })
+                }
+                value={mass?.offertory?.songId || ""}
                 id="offertory"
               >
                 <SelectTrigger className="w-[180px]">
@@ -418,8 +548,10 @@ const MassEditor = ({ params }) => {
             <Field>
               <FieldLabel htmlFor="sanctus">Sanctus</FieldLabel>
               <Select
-                onValueChange={(id) => handleUpdateMass("sanctus", { id })}
-                value={mass?.sanctus?.id || ""}
+                onValueChange={(songId) =>
+                  handleUpdateMass("sanctus", { ...mass?.sanctus, songId })
+                }
+                value={mass?.sanctus?.songId || ""}
                 id="sanctus"
               >
                 <SelectTrigger className="w-[180px]">
@@ -445,8 +577,10 @@ const MassEditor = ({ params }) => {
             <Field>
               <FieldLabel htmlFor="peace">Peace</FieldLabel>
               <Select
-                onValueChange={(id) => handleUpdateMass("peace", { id })}
-                value={mass?.peace?.id || ""}
+                onValueChange={(songId) =>
+                  handleUpdateMass("peace", { ...mass?.peace, songId })
+                }
+                value={mass?.peace?.songId || ""}
                 id="peace"
               >
                 <SelectTrigger className="w-[180px]">
@@ -472,8 +606,10 @@ const MassEditor = ({ params }) => {
             <Field>
               <FieldLabel htmlFor="agnusDei">Agnus Dei</FieldLabel>
               <Select
-                onValueChange={(id) => handleUpdateMass("agnusDei", { id })}
-                value={mass?.agnusDei?.id || ""}
+                onValueChange={(songId) =>
+                  handleUpdateMass("agnusDei", { ...mass?.agnusDei, songId })
+                }
+                value={mass?.agnusDei?.songId || ""}
                 id="agnusDei"
               >
                 <SelectTrigger className="w-[180px]">
@@ -499,10 +635,13 @@ const MassEditor = ({ params }) => {
             <Field>
               <FieldLabel htmlFor="holyCommunion">Holy Communion</FieldLabel>
               <Select
-                onValueChange={(id) =>
-                  handleUpdateMass("holyCommunion", { id })
+                onValueChange={(songId) =>
+                  handleUpdateMass("holyCommunion", {
+                    ...mass?.holyCommunion,
+                    songId,
+                  })
                 }
-                value={mass?.holyCommunion?.id || ""}
+                value={mass?.holyCommunion?.songId || ""}
                 id="holyCommunion"
               >
                 <SelectTrigger className="w-[180px]">
@@ -547,10 +686,13 @@ const MassEditor = ({ params }) => {
               </FieldLabel>
               {mass?.thanksGiving?.included && (
                 <Select
-                  onValueChange={(id) =>
-                    handleUpdateMass("thanksgiving", { id })
+                  onValueChange={(songId) =>
+                    handleUpdateMass("thanksgiving", {
+                      ...mass?.thanksGiving,
+                      songId,
+                    })
                   }
-                  value={mass?.thanksgiving?.id || ""}
+                  value={mass?.thanksgiving?.songId || ""}
                   id="thanksGiving"
                 >
                   <SelectTrigger className="w-[180px]">
@@ -580,8 +722,10 @@ const MassEditor = ({ params }) => {
             <Field>
               <FieldLabel htmlFor="exit">Exit</FieldLabel>
               <Select
-                onValueChange={(id) => handleUpdateMass("exit", { id })}
-                value={mass?.exit?.id || ""}
+                onValueChange={(songId) =>
+                  handleUpdateMass("exit", { ...mass?.exit, songId })
+                }
+                value={mass?.exit?.songId || ""}
                 id="exit"
               >
                 <SelectTrigger className="w-[180px]">
@@ -603,6 +747,13 @@ const MassEditor = ({ params }) => {
                 </SelectContent>
               </Select>
             </Field>
+            <Button
+              onClick={handleSubmit}
+              disabled={isCreating || isSubmittingEdit || !canSave}
+              className="w-max p-3 ml-auto my-10"
+            >
+              Submit
+            </Button>
           </div>
         </FieldGroup>
       </FieldSet>

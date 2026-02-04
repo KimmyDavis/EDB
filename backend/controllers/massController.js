@@ -50,7 +50,27 @@ const queryMass = async (req, res) => {
   if (date && date !== "undefined") query["date"] = date;
   if (title && title !== "undefined") query["title"] = title;
   if (code && code !== "undefined") query["code"] = code;
-  const mass = await Mass.find(query).lean();
+  const mass = await Mass.find(query)
+    .populate({
+      path: [
+        "entrance.songId",
+        "kyrie.songId",
+        "gloria.songId",
+        "acclamation.songId",
+        "creed.songId",
+        "petition.songId",
+        "LordsPrayer.songId",
+        "offertory.songId",
+        "sanctus.songId",
+        "peace.songId",
+        "agnusDei.songId",
+        "holyCommunion.songId",
+        "thanksgiving.songId",
+        "exit.songId",
+      ],
+      // select: "phone jobLevel subOrdinates",
+    })
+    .lean();
   if (!mass?.length) {
     return res.status(404).json({ message: "No mass matches your query." });
   }

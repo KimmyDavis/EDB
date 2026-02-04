@@ -28,21 +28,30 @@ const MassSchema = new mongoose.Schema(
     // songs
     entrance: {
       type: {
-        songId: mongoose.Types.ObjectId,
+        songId: {
+          type: mongoose.Types.ObjectId,
+          ref: "Song",
+        },
         structure: [String],
         sectionTitles: Boolean,
       },
     },
     kyrie: {
       type: {
-        songId: mongoose.Types.ObjectId,
+        songId: {
+          type: mongoose.Types.ObjectId,
+          ref: "Song",
+        },
         structure: [String],
         sectionTitles: Boolean,
       },
     },
     gloria: {
       type: {
-        songId: mongoose.Types.ObjectId,
+        songId: {
+          type: mongoose.Types.ObjectId,
+          ref: "Song",
+        },
         structure: [String],
         sectionTitles: Boolean,
         recited: Boolean,
@@ -51,7 +60,10 @@ const MassSchema = new mongoose.Schema(
     },
     acclamation: {
       type: {
-        songId: mongoose.Types.ObjectId,
+        songId: {
+          type: mongoose.Types.ObjectId,
+          ref: "Song",
+        },
         structure: [String],
         sectionTitles: Boolean,
         recited: Boolean,
@@ -60,7 +72,10 @@ const MassSchema = new mongoose.Schema(
     creed: {
       type: {
         recited: Boolean,
-        songId: mongoose.Types.ObjectId,
+        songId: {
+          type: mongoose.Types.ObjectId,
+          ref: "Song",
+        },
         structure: [String],
         sectionTitles: Boolean,
         included: Boolean,
@@ -68,14 +83,20 @@ const MassSchema = new mongoose.Schema(
     },
     petition: {
       type: {
-        songId: mongoose.Types.ObjectId,
+        songId: {
+          type: mongoose.Types.ObjectId,
+          ref: "Song",
+        },
         structure: [String],
         sectionTitles: Boolean,
       },
     },
     LordsPrayer: {
       type: {
-        songId: mongoose.Types.ObjectId,
+        songId: {
+          type: mongoose.Types.ObjectId,
+          ref: "Song",
+        },
         structure: [String],
         sectionTitles: Boolean,
         recited: Boolean,
@@ -83,42 +104,60 @@ const MassSchema = new mongoose.Schema(
     },
     offertory: {
       type: {
-        songId: mongoose.Types.ObjectId,
+        songId: {
+          type: mongoose.Types.ObjectId,
+          ref: "Song",
+        },
         structure: [String],
         sectionTitles: Boolean,
       },
     },
     sanctus: {
       type: {
-        songId: mongoose.Types.ObjectId,
+        songId: {
+          type: mongoose.Types.ObjectId,
+          ref: "Song",
+        },
         structure: [String],
         sectionTitles: Boolean,
       },
     },
     peace: {
       type: {
-        songId: mongoose.Types.ObjectId,
+        songId: {
+          type: mongoose.Types.ObjectId,
+          ref: "Song",
+        },
         structure: [String],
         sectionTitles: Boolean,
       },
     },
     agnusDei: {
       type: {
-        songId: mongoose.Types.ObjectId,
+        songId: {
+          type: mongoose.Types.ObjectId,
+          ref: "Song",
+        },
         structure: [String],
         sectionTitles: Boolean,
       },
     },
     holyCommunion: {
       type: {
-        songId: mongoose.Types.ObjectId,
+        songId: {
+          type: mongoose.Types.ObjectId,
+          ref: "Song",
+        },
         structure: [String],
         sectionTitles: Boolean,
       },
     },
     thanksgiving: {
       type: {
-        songId: mongoose.Types.ObjectId,
+        songId: {
+          type: mongoose.Types.ObjectId,
+          ref: "Song",
+        },
         structure: [String],
         sectionTitles: Boolean,
         included: Boolean,
@@ -126,7 +165,10 @@ const MassSchema = new mongoose.Schema(
     },
     exit: {
       type: {
-        songId: mongoose.Types.ObjectId,
+        songId: {
+          type: mongoose.Types.ObjectId,
+          ref: "Song",
+        },
         structure: [String],
         sectionTitles: Boolean,
       },

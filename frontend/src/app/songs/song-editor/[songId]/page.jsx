@@ -43,10 +43,11 @@ const CreateSong = ({ params }) => {
       error: editError,
     },
   ] = useEditSongMutation();
-  const { data: songData } = useQuerySongsQuery(
+  const { data: songData, isError: fetchError } = useQuerySongsQuery(
     { id: songId },
     { skip: songId === "new" }
   );
+  console.log(songData);
   // page state
   const [title, setTitle] = useState("");
   const [service, setService] = useState("catholic");
@@ -59,7 +60,7 @@ const CreateSong = ({ params }) => {
   const [structure, setStructure] = useState([]);
   const [inputError, setInputError] = useState("");
   const [isEditing] = useState(songId !== "new");
-  const [song, setSong] = useState(songData || {});
+  const [song, setSong] = useState({});
 
   // monitors
   const [hasChorus, setHasChorus] = useState(Boolean(chorus));
@@ -216,7 +217,7 @@ const CreateSong = ({ params }) => {
 
   // effects
   useEffect(() => {
-    if (songData) {
+    if (songData && !fetchError) {
       const song = songData?.songs[0];
       setTitle(song?.title);
       setService(song?.service);
@@ -226,6 +227,8 @@ const CreateSong = ({ params }) => {
       setChorus(song?.chorus);
       setBridge(song?.bridge);
       setLinks(song?.links);
+      if (song?.structure) setStructure(song?.structure);
+      else handleSetStructureTemplate(1);
       setHasChorus(Boolean(song?.chorus));
       setHasBridge(Boolean(song?.Bridge));
       setHasLinks(Boolean(song?.links?.length));
@@ -246,40 +249,8 @@ const CreateSong = ({ params }) => {
     structure,
   ]);
   useEffect(() => {
-    // if (lastVerseRef.current && verses?.[verses?.length - 1] == "")
-    // lastVerseRef.current.focus();
-    let theStructure = structure;
-    while (
-      theStructure.filter((elm) => elm == "verse").length !=
-      verses.filter((v) => v != "").length
-    ) {
-      if (
-        theStructure.filter((elm) => elm == "verse").length <
-        verses.filter((v) => v != "").length
-      ) {
-        theStructure = [...theStructure, "verse"];
-      } else {
-        theStructure = [...theStructure.filter((elm) => elm != "verse")];
-      }
-    }
-    setStructure(theStructure);
-  }, [verses]);
-  useEffect(() => {
-    if (hasChorus && !structure.includes("chorus")) {
-      setStructure(["chorus", ...structure]);
-    } else if (!hasChorus) {
-      setStructure([...structure.filter((elm) => elm != "chorus")]);
-    }
-  }, [hasChorus]);
-  useEffect(() => {
-    let theStructure = structure;
-    if (hasBridge && !theStructure.includes("bridge")) {
-      theStructure.splice(theStructure.indexOf("chorus") + 1, 0, "bridge");
-    } else if (!hasBridge) {
-      theStructure = theStructure.filter((elm) => elm != "bridge");
-    }
-    setStructure(theStructure);
-  }, [hasBridge]);
+    handleSetStructureTemplate(1);
+  }, [verses, hasChorus, hasBridge]);
 
   useEffect(() => {
     // if (lastLinRef.current && links?.[links?.length - 1] == "")

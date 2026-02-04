@@ -79,7 +79,11 @@ const SongDisplay = ({ song, partTitles, className }) => {
             )}
             <div className="verse-body">
               {song?.verses?.[verseIndex].split("\n").map((line, j) => {
-                return <p key={j}>{line}</p>;
+                return (
+                  <p key={j} className="">
+                    {line}
+                  </p>
+                );
               })}
             </div>
           </div>
@@ -95,7 +99,7 @@ const SongDisplay = ({ song, partTitles, className }) => {
         className + " " + "song-body w-max max-w-full flex flex-col p-10"
       }
     >
-      <h2 className="title text-3xl font-semibold">{song?.title}</h2>
+      <h2 className="title text-xl font-semibold">{song?.title}</h2>
       {song?.links?.filter((l) => l != "")?.length > 0 && (
         <div className="links my-3">
           {partTitles && (
