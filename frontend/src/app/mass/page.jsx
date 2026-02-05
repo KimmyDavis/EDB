@@ -23,7 +23,6 @@ const Mass = () => {
         toast.error("Could not copy text: " + err, { position: "top-center" });
       });
   };
-  console.log(masses);
   return (
     <div>
       {masses?.map((mass, i) => {

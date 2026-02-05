@@ -14,13 +14,10 @@ const Songs = () => {
     isLoading = true,
     isError,
   } = useSelector(selectAllSongs) || [];
-  console.log(songsData);
   let songs = songsData?.songs;
-  console.log(songs);
   let theDom = null;
 
   useEffect(() => {
-    console.log(isLoading, isError);
   }, [isLoading]);
 
   theDom = (

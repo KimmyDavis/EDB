@@ -115,7 +115,6 @@ const MassEditor = ({ params }) => {
   useEffect(() => {
     if (massToEdit && !massToEditIsError)
       setMass(massToEdit?.mass[0] ?? { ...mass });
-    console.log(massToEdit?.mass[0]);
   }, [massToEdit]);
 
   useEffect(() => {

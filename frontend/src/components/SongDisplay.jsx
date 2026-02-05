@@ -96,7 +96,7 @@ const SongDisplay = ({ song, partTitles, className }) => {
   return (
     <div
       className={
-        className + " " + "song-body w-max max-w-full flex flex-col p-10"
+        className + " " + "song-body w-max max-w-full flex flex-col p-2"
       }
     >
       <h2 className="title text-xl font-semibold">{song?.title}</h2>

@@ -66,9 +66,7 @@ const Header = () => {
   useEffect(() => {
     setAtHome(pathname.split("/").filter((p) => p != "").length == 0);
   }, [pathname]);
-  useEffect(() => {
-    console.log("at home => ", atHome, pathname);
-  }, [atHome]);
+  useEffect(() => {}, [atHome]);
   useEffect(() => {
     router.push(currentLocation);
   }, [currentLocation]);

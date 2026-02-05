@@ -47,7 +47,6 @@ const CreateSong = ({ params }) => {
     { id: songId },
     { skip: songId === "new" }
   );
-  console.log(songData);
   // page state
   const [title, setTitle] = useState("");
   const [service, setService] = useState("catholic");

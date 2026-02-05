@@ -24,9 +24,7 @@ export const authApiSlice = apiSlice.injectEndpoints({
           setTimeout(() => {
             dispatch(apiSlice.util.resetApiState());
           }, 1000);
-        } catch (err) {
-          console.log("error", err);
-        }
+        } catch (err) {}
       },
     }),
     refresh: builder.mutation({
@@ -40,9 +38,7 @@ export const authApiSlice = apiSlice.injectEndpoints({
           // console.log(data);
           const { accessToken } = data;
           dispatch(setCredentials({ accessToken }));
-        } catch (err) {
-          console.log(err);
-        }
+        } catch (err) {}
       },
     }),
   }),
