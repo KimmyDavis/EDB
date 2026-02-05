@@ -66,6 +66,7 @@ const ShowMass = ({ params }) => {
           top: "0px",
           left: "0px",
           zIndex: -1,
+          opacity: 0.5,
         }}
       />
       <h1 className="text-3xl font-bold mt-10">{mass?.title}</h1>
