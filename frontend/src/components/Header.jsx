@@ -53,7 +53,7 @@ const Header = () => {
   const { isEditor } = useAuth();
   const [pword, setPword] = useState("");
   const [atHome, setAtHome] = useState(false);
-  const [currentLocation, setCurrentLocation] = useState(endpoints[0].path);
+  const [currentLocation, setCurrentLocation] = useState("");
 
   // handlers
   const handleBecomeEditor = () => {

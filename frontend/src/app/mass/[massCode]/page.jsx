@@ -103,6 +103,7 @@ const ShowMass = ({ params }) => {
           }
         })}
       </div>
+      <span className="span italic">have a blessed week...</span>
     </div>
   );
 };

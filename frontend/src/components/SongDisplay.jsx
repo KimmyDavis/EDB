@@ -7,7 +7,7 @@ const SongDisplay = ({ song, partTitles, className }) => {
     songDom = (
       <>
         {song?.chorus && (
-          <div className="chorus my-2">
+          <div className="chorus my-2 font-bold italic">
             {partTitles && <h3 className="text-xl">Chorus: </h3>}
             <div className="chorus-body">
               {song?.chorus?.split("\n").map((line, i) => {
@@ -17,7 +17,7 @@ const SongDisplay = ({ song, partTitles, className }) => {
           </div>
         )}
         {song?.bridge && (
-          <div className="bridge my-2">
+          <div className="bridge my-2 font-semibold">
             {partTitles && <h3 className="text-xl">Bridge: </h3>}
             <div className="bridge-body">
               {song?.bridge?.split("\n").map((line, i) => {
@@ -51,7 +51,7 @@ const SongDisplay = ({ song, partTitles, className }) => {
         return (
           <div className="chorus my-2" key={"chorus" + i}>
             {partTitles && <h3 className="text-xl">Chorus: </h3>}
-            <div className="chorus-body flex flex-col gap-0 pl-2">
+            <div className="chorus-body flex flex-col gap-0 pl-2 font-semibold italic">
               {song?.chorus?.split("\n").map((line, i) => {
                 return <p key={i}>{line}</p>;
               })}
@@ -61,7 +61,7 @@ const SongDisplay = ({ song, partTitles, className }) => {
       }
       if (item == "bridge") {
         return (
-          <div className="bridge my-2 pl-1" key={"bridge" + i}>
+          <div className="bridge my-2 pl-1 font-semibold" key={"bridge" + i}>
             {partTitles && <h3 className="text-xl">Bridge: </h3>}
             <div className="bridge-body">
               {song?.bridge?.split("\n").map((line, i) => {
