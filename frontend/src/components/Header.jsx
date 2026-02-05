@@ -76,7 +76,7 @@ const Header = () => {
     <div className="bg-primary absolute top-0 left-0 w-full h-24 text-primary-foreground flex flex-row items-center p-3 select-none">
       <h1
         className={`text-3xl font-bold cursor-pointer ${
-          !isEditor && atHome && "w-full text-center"
+          !isEditor && "w-full text-center"
         }`}
         onClick={isEditor ? () => router.push("/") : () => {}}
       >
