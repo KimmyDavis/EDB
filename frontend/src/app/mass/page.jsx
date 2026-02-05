@@ -33,7 +33,7 @@ const Mass = () => {
         return (
           <div
             key={mass._id}
-            onClick={() => router.push("/mass/" + mass?.code)}
+            onClick={() => router.push("/mass/" + mass?._id)}
             className="mass-item relative p-5 flex flex-col bg-[#0003] m-2 gap-2 rounded-lg"
           >
             <h3 className="font-bold text-xl">{mass?.title}</h3>
@@ -50,10 +50,7 @@ const Mass = () => {
               </Button>
               <Button
                 onClick={(e) =>
-                  handleCopyText(
-                    e,
-                    `${window.location.host}/mass/${mass?.code}`
-                  )
+                  handleCopyText(e, `${window.location.host}/mass/${mass?._id}`)
                 }
                 className="w-max rounded-full p-5 text-lg"
               >

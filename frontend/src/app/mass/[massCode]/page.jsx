@@ -13,8 +13,9 @@ const ShowMass = ({ params }) => {
     isLoading,
     isError,
     error,
-  } = useQueryMassQuery({ code: massCode }, { skip: !massCode });
+  } = useQueryMassQuery({ id: massCode }, { skip: !massCode });
   const mass = massData?.mass?.[0];
+  console.log(mass);
 
   const sectionOrder = [
     "entrance",

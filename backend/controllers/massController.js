@@ -38,7 +38,26 @@ const queryMass = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ message: "Please provide a valid id." });
     }
-    const mass = await Mass.findById(id);
+    const mass = await Mass.findById(id)
+      .populate({
+        path: [
+          "entrance.songId",
+          "kyrie.songId",
+          "gloria.songId",
+          "acclamation.songId",
+          "creed.songId",
+          "petition.songId",
+          "LordsPrayer.songId",
+          "offertory.songId",
+          "sanctus.songId",
+          "peace.songId",
+          "agnusDei.songId",
+          "holyCommunion.songId",
+          "thanksgiving.songId",
+          "exit.songId",
+        ],
+      })
+      .lean();
     if (!mass) {
       return res
         .status(404)
@@ -68,7 +87,6 @@ const queryMass = async (req, res) => {
         "thanksgiving.songId",
         "exit.songId",
       ],
-      // select: "phone jobLevel subOrdinates",
     })
     .lean();
   if (!mass?.length) {
