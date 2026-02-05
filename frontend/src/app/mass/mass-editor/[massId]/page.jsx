@@ -30,7 +30,7 @@ import {
   useQueryMassQuery,
 } from "@/features/mass/massApiSlice";
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 const starterMassTemplate = {
   acclamation: {
@@ -643,7 +643,7 @@ const MassEditor = ({ params }) => {
                     <SelectLabel>Agnus Dei songs</SelectLabel>
                     {songs
                       ?.filter((s) =>
-                        ["agnus dei", "agnusDei"].includes(s.section)
+                        ["agnus Dei", "agnusDei"].includes(s.section)
                       )
                       ?.map((song, i) => {
                         return (

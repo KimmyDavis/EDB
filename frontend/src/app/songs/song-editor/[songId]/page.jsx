@@ -59,7 +59,7 @@ const CreateSong = ({ params }) => {
   const [links, setLinks] = useState([""]);
   const [structure, setStructure] = useState([]);
   const [inputError, setInputError] = useState("");
-  const [isEditing] = useState(songId !== "new");
+  const [isEditing, setIsEditing] = useState(songId !== "new");
   const [song, setSong] = useState({});
 
   // monitors
@@ -85,7 +85,7 @@ const CreateSong = ({ params }) => {
     "offertory",
     "sanctus",
     "peace",
-    "agnus dei",
+    "agnus Dei",
     "holy communion",
     "thanksgiving",
     "exit",
@@ -282,7 +282,7 @@ const CreateSong = ({ params }) => {
       setLinks([""]);
       setStructure([]);
       setInputError("");
-      isEditing(false);
+      setIsEditing(false);
       setSong({});
       setHasChorus(false);
       setHasBridge(false);

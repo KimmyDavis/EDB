@@ -17,7 +17,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Music } from "lucide-react";
+import { Home } from "lucide-react";
 const endpoints = [
+  {
+    title: "Home",
+    path: "/",
+    icon: <Home />,
+  },
   {
     title: "add song",
     path: "/songs/song-editor/new",
@@ -33,6 +40,11 @@ const endpoints = [
     path: "/mass",
     icon: <Church />,
   },
+  {
+    title: "songs",
+    path: "/songs",
+    icon: <Music />,
+  },
 ];
 
 const Header = () => {
@@ -41,7 +53,7 @@ const Header = () => {
   const { isEditor } = useAuth();
   const [pword, setPword] = useState("");
   const [atHome, setAtHome] = useState(false);
-  const [currentLocation, setCurrentLocation] = useState("");
+  const [currentLocation, setCurrentLocation] = useState(endpoints[0].path);
 
   // handlers
   const handleBecomeEditor = () => {
