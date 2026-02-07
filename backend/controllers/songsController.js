@@ -12,14 +12,14 @@ const createSong = async (req, res) => {
   const {
     title,
     service,
-    section,
+    sections,
     category,
     verses,
     chorus,
     bridge,
     links,
     key,
-    structure
+    structure,
   } = req.body;
   if ((!title, !service, !verses?.length)) {
     return res.status(400).json({
@@ -27,7 +27,7 @@ const createSong = async (req, res) => {
         "either title is missing, you didn't specify the service, or you didn't provide any verse.",
     });
   }
-  if (["catholic", "both"].includes(service) && !section) {
+  if (["catholic", "both"].includes(service) && !sections?.length) {
     return res.status(400).json({
       message: "you have to provide a mass section for a catholic song.",
     });
@@ -39,7 +39,7 @@ const createSong = async (req, res) => {
     });
   }
   const song = { title, service, verses };
-  if (section) song["section"] = section;
+  if (sections) song["sections"] = sections;
   if (category) song["category"] = category;
   if (chorus) song["chorus"] = chorus;
   if (bridge) song["bridge"] = bridge;
@@ -83,7 +83,7 @@ const querySongs = async (req, res) => {
   if (category && category !== "undefined") query["category"] = category;
   if (title && title !== "undefined") query["title"] = title;
   if (code && code !== "undefined") query["code"] = code;
-  const songs = await Song.find(query).lean();
+  const songs = await Song.find(query);
   if (!songs?.length) {
     return res.status(404).json({ message: "No song matches your query." });
   }

@@ -15,6 +15,10 @@ const SongSchema = new mongoose.Schema(
       descripton:
         "The type of service the song is composed for. Whether catholic, evangelical or both.",
     },
+    sections: {
+      type: [String],
+      description: "The sections of the catholic mass if it is a catholic song.",
+    },
     section: {
       type: String,
       enum: [

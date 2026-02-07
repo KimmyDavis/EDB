@@ -27,6 +27,7 @@ import SongDisplay from "@/components/SongDisplay";
 import { ArrowUp } from "lucide-react";
 import { ArrowDown } from "lucide-react";
 import useAuth from "@/hooks/use-auth";
+import { MultiSelect } from "@/components/multi-select";
 
 const CreateSong = ({ params }) => {
   // hooks
@@ -50,7 +51,7 @@ const CreateSong = ({ params }) => {
   // page state
   const [title, setTitle] = useState("");
   const [service, setService] = useState("catholic");
-  const [section, setSection] = useState("");
+  const [sections, setSections] = useState([]);
   const [category, setCategory] = useState("");
   const [verses, setVerses] = useState([""]);
   const [chorus, setChorus] = useState("");
@@ -74,26 +75,26 @@ const CreateSong = ({ params }) => {
   const serviceTypes = ["catholic", "evangelical", "both"];
   const evangelicalServiceCategories = ["praise", "worship"];
   const massSections = [
-    "entrance",
-    "kyrie",
-    "gloria",
-    "acclamation",
-    "creed",
-    "petition",
-    "Lord's prayer",
-    "offertory",
-    "sanctus",
-    "peace",
-    "agnus Dei",
-    "holy communion",
-    "thanksgiving",
-    "exit",
+    { value: "entrance", label: "entrance" },
+    { value: "kyrie", label: "kyrie" },
+    { value: "gloria", label: "gloria" },
+    { value: "acclamation", label: "acclamation" },
+    { value: "creed", label: "creed" },
+    { value: "petition", label: "petition" },
+    { value: "Lord's prayer", label: "Lord's prayer" },
+    { value: "offertory", label: "offertory" },
+    { value: "sanctus", label: "sanctus" },
+    { value: "peace", label: "peace" },
+    { value: "agnus Dei", label: "agnus Dei" },
+    { value: "holy communion", label: "holy communion" },
+    { value: "thanksgiving", label: "thanksgiving" },
+    { value: "exit", label: "exit" },
   ];
 
   // handlers
   const handleServiceChange = (serviceType) => {
     if (serviceType == "catholic") setCategory("");
-    if (serviceType == "evangelical") setSection("");
+    if (serviceType == "evangelical") setSections([]);
     setService(serviceType);
   };
 
@@ -176,8 +177,8 @@ const CreateSong = ({ params }) => {
   const handleSubmit = async () => {
     if (!title) return setInputError("song title is required.");
     else if (!service) return setInputError("Service is required.");
-    else if (["catholic", "both"].includes(service) && !section)
-      return setInputError("Specify a section of mass for the song.");
+    else if (["catholic", "both"].includes(service) && !sections?.length)
+      return setInputError("Specify a section(s) of mass for the song.");
     else if (["evangelical", "both"].includes(service) && !category)
       return setInputError("Specify a category for the song.");
     else if (!verses?.length || (verses?.length == 1 && verses?.[0] == ""))
@@ -200,7 +201,7 @@ const CreateSong = ({ params }) => {
       verses: verses.filter((v) => v != ""),
       structure,
     };
-    if (section) readySong = { ...readySong, section };
+    if (sections?.length) readySong = { ...readySong, sections };
     if (category) readySong = { ...readySong, category };
     if (hasChorus && chorus) readySong = { ...readySong, chorus };
     if (hasBridge && bridge) readySong = { ...readySong, bridge };
@@ -220,7 +221,7 @@ const CreateSong = ({ params }) => {
       const song = songData?.songs[0];
       setTitle(song?.title);
       setService(song?.service);
-      setSection(song?.section);
+      setSections(song?.sections);
       setCategory(song?.category);
       setVerses(song?.verses);
       setChorus(song?.chorus);
@@ -239,7 +240,7 @@ const CreateSong = ({ params }) => {
   }, [
     title,
     service,
-    section,
+    sections,
     category,
     verses,
     chorus,
@@ -273,7 +274,7 @@ const CreateSong = ({ params }) => {
 
       setTitle("");
       setService("catholic");
-      setSection("");
+      setSections([]);
       setCategory("");
       setVerses([""]);
       setChorus("");
@@ -294,6 +295,10 @@ const CreateSong = ({ params }) => {
       toast.success("Failed! 😔");
     }
   }, [isError, isEditError]);
+
+  useEffect(() => {
+    console.log(sections);
+  }, [sections]);
 
   if (!isEditor) {
     return (
@@ -335,14 +340,27 @@ const CreateSong = ({ params }) => {
       <div className="section-category w-full max-w-200 flex flex-col gap-3">
         {["catholic", "both"].includes(service) && (
           <div className="catholic flex flex-row gap-2 w-full">
-            <Label className="min-w-24">Section of Mass: </Label>
-            <Select onValueChange={setSection} value={section}>
+            <Label className="min-w-24">Section(s) of Mass: </Label>
+            <MultiSelect
+              options={massSections}
+              selected={sections}
+              onChange={setSections}
+              className="w-50 sm:w-full max-w-150"
+            />
+            {/* <Select
+              multiple
+              onValueChange={(val) => {
+                console.log(val);
+                setSections([...sections, val]);
+              }}
+              value={sections}
+            >
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Select..." />
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
-                  <SelectLabel>section</SelectLabel>
+                  <SelectLabel>sections</SelectLabel>
                   {massSections.map((massSection, i) => {
                     return (
                       <SelectItem value={massSection} key={i}>
@@ -352,7 +370,7 @@ const CreateSong = ({ params }) => {
                   })}
                 </SelectGroup>
               </SelectContent>
-            </Select>
+            </Select> */}
           </div>
         )}
         {["evangelical", "both"].includes(service) && (

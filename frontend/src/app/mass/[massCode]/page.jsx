@@ -49,6 +49,10 @@ const ShowMass = ({ params }) => {
     <div className="error">An error occured...</div>;
   }
 
+  if (!mass) {
+    return <div className="no data">No data found...</div>;
+  }
+
   return (
     <div className="relative mass-display flex flex-col items-center justify-center bg-green-200/90">
       <Image
@@ -72,7 +76,7 @@ const ShowMass = ({ params }) => {
       <h1 className="text-3xl font-bold mt-10">{mass?.title}</h1>
       <div className="inner-cont flex flex-col w-full max-w-200">
         {sectionOrder?.map((section, i) => {
-          if (mass[section]?.included === false) {
+          if (mass?.[section]?.included === false) {
             return;
           }
           if (mass?.[section]?.recited) {

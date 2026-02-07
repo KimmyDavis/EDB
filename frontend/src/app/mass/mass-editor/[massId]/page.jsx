@@ -240,7 +240,7 @@ const MassEditor = ({ params }) => {
                   <SelectGroup>
                     <SelectLabel>Entrance songs</SelectLabel>
                     {songs
-                      ?.filter((s) => s.section == "entrance")
+                      ?.filter((s) => s.sections?.includes("entrance"))
                       ?.map((song, i) => {
                         return (
                           <SelectItem value={song._id} key={"entrance" + i}>
@@ -269,7 +269,7 @@ const MassEditor = ({ params }) => {
                   <SelectGroup>
                     <SelectLabel>Kyrie songs</SelectLabel>
                     {songs
-                      ?.filter((s) => s.section == "kyrie")
+                      ?.filter((s) => s.sections?.includes("kyrie"))
                       ?.map((song, i) => {
                         return (
                           <SelectItem value={song._id} key={"kyrie" + i}>
@@ -330,7 +330,7 @@ const MassEditor = ({ params }) => {
                     <SelectGroup>
                       <SelectLabel>Gloria songs</SelectLabel>
                       {songs
-                        ?.filter((s) => s.section == "gloria")
+                        ?.filter((s) => s.sections?.includes("gloria"))
                         ?.map((song, i) => {
                           return (
                             <SelectItem value={song._id} key={"gloria" + i}>
@@ -378,7 +378,7 @@ const MassEditor = ({ params }) => {
                   <SelectGroup>
                     <SelectLabel>Gospel Acclamation songs</SelectLabel>
                     {songs
-                      ?.filter((s) => s.section == "acclamation")
+                      ?.filter((s) => s.sections?.includes("acclamation"))
                       ?.map((song, i) => {
                         return (
                           <SelectItem value={song._id} key={"acclamation" + i}>
@@ -439,7 +439,7 @@ const MassEditor = ({ params }) => {
                     <SelectGroup>
                       <SelectLabel>Creed songs</SelectLabel>
                       {songs
-                        ?.filter((s) => s.section == "creed")
+                        ?.filter((s) => s.sections?.includes("creed"))
                         ?.map((song, i) => {
                           return (
                             <SelectItem value={song._id} key={"creed" + i}>
@@ -472,7 +472,7 @@ const MassEditor = ({ params }) => {
                   <SelectGroup>
                     <SelectLabel>Petition songs</SelectLabel>
                     {songs
-                      ?.filter((s) => s.section == "petition")
+                      ?.filter((s) => s.sections?.includes("petition"))
                       ?.map((song, i) => {
                         return (
                           <SelectItem value={song._id} key={"petition" + i}>
@@ -521,7 +521,9 @@ const MassEditor = ({ params }) => {
                       <SelectLabel>Lord's Prayer songs</SelectLabel>
                       {songs
                         ?.filter((s) =>
-                          ["Lord's prayer", "LordsPrayer"].includes(s.section)
+                          s.sections?.some((sect) =>
+                            ["Lord's prayer", "LordsPrayer"].includes(sect)
+                          )
                         )
                         ?.map((song, i) => {
                           return (
@@ -555,7 +557,7 @@ const MassEditor = ({ params }) => {
                   <SelectGroup>
                     <SelectLabel>Offertory songs</SelectLabel>
                     {songs
-                      ?.filter((s) => s.section == "offertory")
+                      ?.filter((s) => s.sections?.includes("offertory"))
                       ?.map((song, i) => {
                         return (
                           <SelectItem value={song._id} key={"offertory" + i}>
@@ -583,7 +585,7 @@ const MassEditor = ({ params }) => {
                   <SelectGroup>
                     <SelectLabel>Sanctus songs</SelectLabel>
                     {songs
-                      ?.filter((s) => s.section == "sanctus")
+                      ?.filter((s) => s.sections?.includes("sanctus"))
                       ?.map((song, i) => {
                         return (
                           <SelectItem value={song._id} key={"sanctus" + i}>
@@ -612,7 +614,7 @@ const MassEditor = ({ params }) => {
                   <SelectGroup>
                     <SelectLabel>Peace songs</SelectLabel>
                     {songs
-                      ?.filter((s) => s.section == "peace")
+                      ?.filter((s) => s.sections?.includes("peace"))
                       ?.map((song, i) => {
                         return (
                           <SelectItem value={song._id} key={"peace" + i}>
@@ -642,7 +644,9 @@ const MassEditor = ({ params }) => {
                     <SelectLabel>Agnus Dei songs</SelectLabel>
                     {songs
                       ?.filter((s) =>
-                        ["agnus Dei", "agnusDei"].includes(s.section)
+                        s.sections?.some((sect) =>
+                          ["agnus Dei", "agnusDei"].includes(sect)
+                        )
                       )
                       ?.map((song, i) => {
                         return (
@@ -676,7 +680,9 @@ const MassEditor = ({ params }) => {
                     <SelectLabel>Holy Communion songs</SelectLabel>
                     {songs
                       ?.filter((s) =>
-                        ["holy communion", "holyCommunion"].includes(s.section)
+                        s.sections?.some((sect) =>
+                          ["holy communion", "holyCommunion"].includes(sect)
+                        )
                       )
                       ?.map((song, i) => {
                         return (
@@ -728,7 +734,7 @@ const MassEditor = ({ params }) => {
                     <SelectGroup>
                       <SelectLabel>Thanksgiving songs</SelectLabel>
                       {songs
-                        ?.filter((s) => s.section == "thanksgiving")
+                        ?.filter((s) => s.sections?.includes("thanksgiving"))
                         ?.map((song, i) => {
                           return (
                             <SelectItem
@@ -761,7 +767,7 @@ const MassEditor = ({ params }) => {
                   <SelectGroup>
                     <SelectLabel>Exit songs</SelectLabel>
                     {songs
-                      ?.filter((s) => s.section == "exit")
+                      ?.filter((s) => s.sections?.includes("exit"))
                       ?.map((song, i) => {
                         return (
                           <SelectItem value={song._id} key={"exit" + i}>

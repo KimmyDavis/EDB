@@ -14,11 +14,10 @@ const Songs = () => {
     isLoading = true,
     isError,
   } = useSelector(selectAllSongs) || [];
-  let songs = songsData?.songs;
+  let songs = songsData?.songs ? [...songsData?.songs] : [];
   let theDom = null;
 
-  useEffect(() => {
-  }, [isLoading]);
+  useEffect(() => {}, [isLoading]);
 
   theDom = (
     <div className="songs flex flex-col gap-2 w-full max-w-200">
@@ -40,7 +39,19 @@ const Songs = () => {
               <h3 className="title text-xl">{song.title}</h3>
               <div className="meta flex gap-3 italic text-slate-400">
                 <span className="section-category">
-                  {song.service == "catholic" ? song.section : song.category}
+                  {song.service == "catholic" ? (
+                    <div className="song-sections flex flex-row gap-1">
+                      {song.sections.map((sect, i) => {
+                        return (
+                          <span key={i} className="section">
+                            {sect}
+                          </span>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    song.category
+                  )}
                 </span>
                 <span className="date">{theDate}</span>
               </div>
