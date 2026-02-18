@@ -17,7 +17,8 @@ const SongSchema = new mongoose.Schema(
     },
     sections: {
       type: [String],
-      description: "The sections of the catholic mass if it is a catholic song.",
+      description:
+        "The sections of the catholic mass if it is a catholic song.",
     },
     section: {
       type: String,
