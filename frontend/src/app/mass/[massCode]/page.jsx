@@ -54,9 +54,9 @@ const ShowMass = ({ params }) => {
   }
 
   return (
-    <div className="relative mass-display flex flex-col items-center justify-center bg-green-200/90">
+    <div className="relative mass-display flex flex-col items-center justify-center bg-purple-500/20">
       <Image
-        src="/images/cardinal.jpeg"
+        src="/images/ash.jpeg"
         alt="Background"
         quality={100}
         width={100}
@@ -70,7 +70,7 @@ const ShowMass = ({ params }) => {
           top: "0px",
           left: "0px",
           zIndex: -1,
-          opacity: 0.5,
+          opacity: 0.1,
         }}
       />
       <h1 className="text-3xl font-bold mt-10">{mass?.title}</h1>
