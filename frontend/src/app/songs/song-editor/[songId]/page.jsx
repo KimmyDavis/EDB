@@ -28,9 +28,11 @@ import { ArrowUp } from "lucide-react";
 import { ArrowDown } from "lucide-react";
 import useAuth from "@/hooks/use-auth";
 import { MultiSelect } from "@/components/multi-select";
+import { useRouter } from "next/navigation";
 
 const CreateSong = ({ params }) => {
   // hooks
+  const router = useRouter();
   const { isEditor } = useAuth();
   const { songId } = use(params);
   const [submitSong, { isLoading, isSuccess, isError, error }] =
@@ -217,8 +219,10 @@ const CreateSong = ({ params }) => {
 
   // effects
   useEffect(() => {
+    console.log(songData);
     if (songData && !fetchError) {
       const song = songData?.songs[0];
+      setSong(song);
       setTitle(song?.title);
       setService(song?.service);
       setSections(song?.sections);
@@ -249,7 +253,7 @@ const CreateSong = ({ params }) => {
     structure,
   ]);
   useEffect(() => {
-    handleSetStructureTemplate(1);
+    if (!song?.structure) handleSetStructureTemplate(1);
   }, [verses, hasChorus, hasBridge]);
 
   useEffect(() => {
@@ -270,8 +274,6 @@ const CreateSong = ({ params }) => {
 
   useEffect(() => {
     if (isSuccess || isEditSuccess) {
-      toast.success("Successfully submitted! 🥳");
-
       setTitle("");
       setService("catholic");
       setSections([]);
@@ -287,6 +289,8 @@ const CreateSong = ({ params }) => {
       setHasChorus(false);
       setHasBridge(false);
       setHasLinks(true);
+      toast.success("Successfully submitted! 🥳");
+      router.push("/");
     }
   }, [isSuccess, isEditSuccess]);
 
@@ -295,10 +299,6 @@ const CreateSong = ({ params }) => {
       toast.success("Failed! 😔");
     }
   }, [isError, isEditError]);
-
-  useEffect(() => {
-    console.log(sections);
-  }, [sections]);
 
   if (!isEditor) {
     return (
