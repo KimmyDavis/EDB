@@ -28,6 +28,14 @@ export const massApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: () => [{ type: "Mass", id: "MASS_LIST" }],
     }),
+    deleteMass: builder.mutation({
+      query: ({ id }) => ({
+        url: "/mass",
+        method: "DELETE",
+        body: { id },
+      }),
+      invalidatesTags: () => [{ type: "Mass", id: "MASS_LIST" }],
+    }),
   }),
 });
 
@@ -39,8 +47,12 @@ import { createSelector } from "@reduxjs/toolkit";
 
 export const selectAllMass = createSelector(
   selectMassData,
-  (massResult) => massResult.data ?? [] // Returns the transformed data or empty array
+  (massResult) => massResult.data ?? [], // Returns the transformed data or empty array
 );
 
-export const { useCreateMassMutation, useQueryMassQuery, useEditMassMutation } =
-  massApiSlice;
+export const {
+  useCreateMassMutation,
+  useQueryMassQuery,
+  useEditMassMutation,
+  useDeleteMassMutation,
+} = massApiSlice;

@@ -104,12 +104,34 @@ const editSong = async (req, res) => {
       .status(400)
       .json({ message: "Check the song id. It is either missing or invalid." });
   }
-  if (Object.keys(req.body) <= 1) {
+  const allowedUpdates = [
+    "title",
+    "service",
+    "sections",
+    "section",
+    "category",
+    "verses",
+    "chorus",
+    "bridge",
+    "links",
+    "key",
+    "structure",
+  ];
+  const updates = {};
+
+  // Only include allowed fields from req.body
+  allowedUpdates.forEach((field) => {
+    if (req.body[field] !== undefined) {
+      updates[field] = req.body[field];
+    }
+  });
+
+  if (Object.keys(updates).length === 0) {
     return res
       .status(400)
-      .json({ message: "Please provide atleast one field to edit." });
+      .json({ message: "Please provide at least one field to edit." });
   }
-  const updated = await Song.findByIdAndUpdate(id, req.body, { new: true });
+  const updated = await Song.findByIdAndUpdate(id, updates, { new: true });
   if (!updated) {
     return res
       .status(404)
@@ -118,4 +140,28 @@ const editSong = async (req, res) => {
   res.status(200).json({ song: updated });
 };
 
-export default { createSong, querySongs, editSong };
+/*
+deleteSong
+method: DELETE
+does: deletes a song from the database by id
+receives: the song id in the request body
+returns: a success message or an error if the song is not found
+*/
+const deleteSong = async (req, res) => {
+  const { id } = req.body;
+  if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+    return res
+      .status(400)
+      .json({ message: "Check the song id. It is either missing or invalid." });
+  }
+  const deleted = await Song.findByIdAndDelete(id);
+  console.log(deleted);
+  if (!deleted) {
+    return res
+      .status(404)
+      .json({ message: "No song id matches the one provided." });
+  }
+  res.status(200).json({ message: "Song successfully deleted." });
+};
+
+export default { createSong, querySongs, editSong, deleteSong };

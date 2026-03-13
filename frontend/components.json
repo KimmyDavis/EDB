@@ -1,6 +1,6 @@
 {
   "$schema": "https://ui.shadcn.com/schema.json",
-  "style": "new-york",
+  "style": "base-nova",
   "rsc": true,
   "tsx": false,
   "tailwind": {
@@ -11,6 +11,9 @@
     "prefix": ""
   },
   "iconLibrary": "lucide",
+  "rtl": false,
+  "menuColor": "default",
+  "menuAccent": "subtle",
   "aliases": {
     "components": "@/components",
     "utils": "@/lib/utils",
@@ -18,5 +21,10 @@
     "lib": "@/lib",
     "hooks": "@/hooks"
   },
-  "registries": {}
+  "registries": {
+    "@shadcn-space": "https://shadcnspace.com/r/{name}.json",
+    "@intentui": "https://intentui.com/r/{name}",
+    "@diceui": "https://diceui.com/r/{name}.json",
+    "@react-bits": "https://reactbits.dev/r/{name}.json"
+  }
 }

@@ -109,12 +109,41 @@ const editMass = async (req, res) => {
       .status(400)
       .json({ message: "Check the id. It is either missing or invalid." });
   }
-  if (Object.keys(req.body) <= 1) {
+  const allowedUpdates = [
+    "title",
+    "date",
+    "notes",
+    "psalmResponse",
+    "entrance",
+    "kyrie",
+    "gloria",
+    "acclamation",
+    "creed",
+    "petition",
+    "LordsPrayer",
+    "offertory",
+    "sanctus",
+    "peace",
+    "agnusDei",
+    "holyCommunion",
+    "thanksgiving",
+    "exit",
+  ];
+  const updates = {};
+
+  // Only include allowed fields from req.body
+  allowedUpdates.forEach((field) => {
+    if (req.body[field] !== undefined) {
+      updates[field] = req.body[field];
+    }
+  });
+
+  if (Object.keys(updates).length === 0) {
     return res
       .status(400)
-      .json({ message: "Please provide atleast one field to edit." });
+      .json({ message: "Please provide at least one field to edit." });
   }
-  const updated = await Mass.findByIdAndUpdate(id, req.body, { new: true });
+  const updated = await Mass.findByIdAndUpdate(id, updates, { new: true });
   if (!updated) {
     return res
       .status(404)
@@ -125,4 +154,27 @@ const editMass = async (req, res) => {
     .json({ mass: updated, message: "Mass successfully updated." });
 };
 
-export default { createMass, queryMass, editMass };
+/*
+deleteMass
+method: DELETE
+does: deletes a mass from the mass database
+receives: the mass id in the request body
+returns: a confirmation message or an error
+*/
+const deleteMass = async (req, res) => {
+  const { id } = req.body;
+  if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+    return res
+      .status(400)
+      .json({ message: "Check the id. It is either missing or invalid." });
+  }
+  const deleted = await Mass.findByIdAndDelete(id);
+  if (!deleted) {
+    return res
+      .status(404)
+      .json({ message: "No mass id matches the one provided." });
+  }
+  res.status(200).json({ message: "Mass successfully deleted." });
+};
+
+export default { createMass, queryMass, editMass, deleteMass };
