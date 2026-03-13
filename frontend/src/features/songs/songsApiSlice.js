@@ -28,6 +28,14 @@ export const songsApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: () => [{ type: "Songs", id: "LIST" }],
     }),
+    deleteSong: builder.mutation({
+      query: ({ id }) => ({
+        url: `/songs`,
+        method: "DELETE",
+        body: { id },
+      }),
+      invalidatesTags: () => [{ type: "Songs", id: "LIST" }],
+    }),
   }),
 });
 
@@ -46,11 +54,12 @@ export const selectAllSongs = createSelector(
     songsData["isLoading"] = songsResult?.isLoading;
     songsData["error"] = songsResult?.error;
     return songsData;
-  } // Returns the transformed data or empty array
+  }, // Returns the transformed data or empty array
 );
 
 export const {
   useCreateSongMutation,
   useQuerySongsQuery,
   useEditSongMutation,
+  useDeleteSongMutation,
 } = songsApiSlice;

@@ -40,12 +40,15 @@ export function MultiSelect({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
+      <PopoverTrigger>
+        <div
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className={cn("w-full justify-between h-auto min-h-10", className)}
+          className={cn(
+            "w-full flex flex-row items-center justify-start bg-[#fffa] rounded-md p-2 h-auto min-h-10",
+            className,
+          )}
         >
           <div className="flex flex-wrap gap-1">
             {selected.length > 0 ? (
@@ -74,8 +77,8 @@ export function MultiSelect({
               <span className="text-muted-foreground">{placeholder}</span>
             )}
           </div>
-          <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
-        </Button>
+          <ChevronsUpDown className="h-4 ml-auto w-4 shrink-0 opacity-50" />
+        </div>
       </PopoverTrigger>
       <PopoverContent className="w-full p-0">
         <Command>
@@ -93,7 +96,7 @@ export function MultiSelect({
                       "mr-2 h-4 w-4",
                       selected.includes(option.value)
                         ? "opacity-100"
-                        : "opacity-0"
+                        : "opacity-0",
                     )}
                   />
                   {option.label}

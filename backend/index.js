@@ -9,6 +9,7 @@ import { logger, logEvents } from "./middleware/logger.js";
 import errorHandler from "./middleware/errorHandler.js";
 import corsOptions from "./config/corsOptions.js";
 import { dbMiddleware } from "./middleware/dbConnection.js";
+import { checkJwt } from "./middleware/verifyJWT.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -32,10 +33,15 @@ app.use(express.json());
 app.use("/", express.static(path.join(__dirname, "public")));
 
 // routes
+app.use(checkJwt);
 import songsRoutes from "./routes/songsRoutes.js";
 import massRoutes from "./routes/massRoutes.js";
+import eventsRoutes from "./routes/eventsRoutes.js";
+import usersRoutes from "./routes/usersRoutes.js";
 app.use("/songs", songsRoutes);
 app.use("/mass", massRoutes);
+app.use("/events", eventsRoutes);
+app.use("/users", usersRoutes);
 
 app.all(/.*/, (req, res) => {
   res.status(404);
@@ -53,7 +59,7 @@ mongoose.connection.on("error", (err) => {
   if (process.env.ENV === "dev")
     logEvents(
       `${err.no}: ${err.code}\t${err.syscall}\t${err.hostname}`,
-      "mongooseErrLog.log"
+      "mongooseErrLog.log",
     );
 });
 export default app;

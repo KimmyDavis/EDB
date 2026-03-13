@@ -1,11 +1,16 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { setCredentials } from "../../features/auth/authSlice";
+import { authClient } from "@/lib/authClient";
 
 const baseQuery = fetchBaseQuery({
   baseUrl: process.env.NEXT_PUBLIC_BACKEND_URI,
   credentials: "include",
-  prepareHeaders: (headers, { getState }) => {
-    const token = getState()?.auth?.token || "";
+  cache: "no-store",
+  prepareHeaders: async (headers, { getState }) => {
+    const { data: jwtData, error } = await authClient.token();
+
+    // const token = getState()?.auth?.jwt || "";
+    const token = jwtData?.token || "";
 
     if (token) {
       headers.set("authorization", `Bearer ${token}`);
@@ -47,6 +52,6 @@ export const apiSlice = createApi({
   baseQuery: baseQueryWithReauth,
   refetchOnMountOrArgChange: 60,
   keepUnusedDataFor: 300,
-  tagTypes: ["User", "Songs", "Meta", "Mass"],
+  tagTypes: ["User", "Songs", "Meta", "Mass", "Events"],
   endpoints: (builder) => ({}),
 });

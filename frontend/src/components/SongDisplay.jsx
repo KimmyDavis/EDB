@@ -112,7 +112,7 @@ const SongDisplay = ({ song, partTitles, className }) => {
                   <a
                     key={i}
                     href={link}
-                    className="text-xs text-sky-400 line-clamp-1"
+                    className="text-xs text-primary line-clamp-1"
                   >
                     {link}
                   </a>

@@ -7,6 +7,7 @@ router
   .route("/")
   .get(massController.queryMass)
   .post(massController.createMass)
-  .patch(massController.editMass);
+  .patch(massController.editMass)
+  .delete(massController.deleteMass);
 
 export default router;
