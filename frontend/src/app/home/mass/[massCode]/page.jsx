@@ -2,11 +2,113 @@
 import SongDisplay from "@/components/SongDisplay";
 import MassShare from "@/components/massComponents/MassShare";
 import { useQueryMassQuery } from "@/features/mass/massApiSlice";
+import { authClient } from "@/lib/authClient";
+import { prayers } from "@/constants/prayers";
 import Image from "next/image";
-import React, { use } from "react";
+import React, { use, useEffect, useMemo, useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+
+const LANGUAGE_LABELS = {
+  english: "English",
+  french: "French",
+  portuguese: "Portuguese",
+};
+
+const normalizeLanguage = (language) => {
+  if (!language) return "english";
+  const normalized = language.toLowerCase();
+  if (normalized === "portugais") return "portuguese";
+  if (normalized in LANGUAGE_LABELS) return normalized;
+  return "english";
+};
+
+function PrayerCarousel({
+  prayerKey,
+  selectedLanguage,
+  languageOptions,
+  onSelectLanguage,
+}) {
+  const prayerSet = prayers?.[prayerKey] || {};
+  const availableLanguages = Object.keys(prayerSet);
+
+  if (!availableLanguages.length) return null;
+
+  const selectedLabelLanguage = prayerSet[selectedLanguage]
+    ? selectedLanguage
+    : "english";
+  const activePrayer = prayerSet[selectedLanguage] || prayerSet.english || "";
+
+  const handlePrev = () => {
+    const currentIndex = Math.max(languageOptions.indexOf(selectedLanguage), 0);
+    const previousIndex =
+      currentIndex === 0 ? languageOptions.length - 1 : currentIndex - 1;
+    onSelectLanguage(languageOptions[previousIndex]);
+  };
+
+  const handleNext = () => {
+    const currentIndex = Math.max(languageOptions.indexOf(selectedLanguage), 0);
+    const nextIndex =
+      currentIndex === languageOptions.length - 1 ? 0 : currentIndex + 1;
+    onSelectLanguage(languageOptions[nextIndex]);
+  };
+
+  return (
+    <div className="mt-3 space-y-3">
+      <div className="flex items-center justify-between gap-2">
+        <button
+          type="button"
+          onClick={handlePrev}
+          aria-label="Previous language"
+          className="rounded-md border border-slate-300 bg-white/70 p-1.5 text-slate-800 hover:bg-white"
+        >
+          <ChevronLeft size={18} />
+        </button>
+        <span className="text-xs font-medium uppercase tracking-wide text-slate-600">
+          {LANGUAGE_LABELS[selectedLabelLanguage] || selectedLabelLanguage}
+        </span>
+        <button
+          type="button"
+          onClick={handleNext}
+          aria-label="Next language"
+          className="rounded-md border border-slate-300 bg-white/70 p-1.5 text-slate-800 hover:bg-white"
+        >
+          <ChevronRight size={18} />
+        </button>
+      </div>
+
+      <p className="text-slate-800 whitespace-pre-line">{activePrayer}</p>
+    </div>
+  );
+}
 
 const ShowMass = ({ params }) => {
   const { massCode } = use(params);
+  const { data: sessionData } = authClient.useSession();
+  const preferredLanguage = useMemo(() => {
+    const normalized = normalizeLanguage(sessionData?.user?.language);
+    return normalized;
+  }, [sessionData?.user?.language]);
+  const prayerLanguages = useMemo(() => {
+    const available = new Set([
+      ...Object.keys(prayers?.creed || {}),
+      ...Object.keys(prayers?.LordsPrayer || {}),
+    ]);
+    const ordered = ["english", "french", "portuguese"];
+    const resolved = ordered.filter((lang) => available.has(lang));
+    return resolved.length ? resolved : ["english"];
+  }, []);
+  const [selectedPrayerLanguage, setSelectedPrayerLanguage] = useState(
+    prayerLanguages.includes(preferredLanguage) ? preferredLanguage : "english",
+  );
+
+  useEffect(() => {
+    setSelectedPrayerLanguage(
+      prayerLanguages.includes(preferredLanguage)
+        ? preferredLanguage
+        : "english",
+    );
+  }, [preferredLanguage, prayerLanguages]);
+
   const {
     data: massData,
     isLoading,
@@ -137,6 +239,8 @@ const ShowMass = ({ params }) => {
           const sectionTitle = handleSectionName(section);
 
           if (sectionData?.recited) {
+            const isPrayerSection =
+              section === "creed" || section === "LordsPrayer";
             return (
               <section
                 key={section + "-recited-" + i}
@@ -145,7 +249,16 @@ const ShowMass = ({ params }) => {
                 <h3 className="text-lg sm:text-xl font-semibold text-slate-900 capitalize">
                   {sectionTitle}
                 </h3>
-                <p className="mt-2 italic text-slate-700">To be recited.</p>
+                {isPrayerSection ? (
+                  <PrayerCarousel
+                    prayerKey={section}
+                    selectedLanguage={selectedPrayerLanguage}
+                    languageOptions={prayerLanguages}
+                    onSelectLanguage={setSelectedPrayerLanguage}
+                  />
+                ) : (
+                  <p className="mt-2 italic text-slate-700">To be recited.</p>
+                )}
               </section>
             );
           }

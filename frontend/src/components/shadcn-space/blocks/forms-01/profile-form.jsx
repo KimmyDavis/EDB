@@ -29,6 +29,7 @@ import Validator from "validatorjs";
 import { getNames } from "country-list";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { hasRequiredProfileInfo } from "@/constants/required-profile-info";
 
 const ProfileForm = () => {
   const router = useRouter();
@@ -54,6 +55,15 @@ const ProfileForm = () => {
 
   const [errors, setErrors] = useState({});
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isEditEnabled, setIsEditEnabled] = useState(false);
+  const shouldForceEditMode = !!user && !hasRequiredProfileInfo(user);
+  const canEditProfile = shouldForceEditMode || isEditEnabled;
+
+  useEffect(() => {
+    if (shouldForceEditMode) {
+      setIsEditEnabled(true);
+    }
+  }, [shouldForceEditMode]);
 
   useEffect(() => {
     if (!user) return;
@@ -169,7 +179,6 @@ const ProfileForm = () => {
   };
 
   const handleSubmit = async (e) => {
-    setIsUpdating(true);
     e.preventDefault();
 
     console.log(Object.values(errors), formData);
@@ -178,6 +187,8 @@ const ProfileForm = () => {
       toast.error("Please fill in all required fields");
       return;
     }
+
+    setIsUpdating(true);
 
     try {
       const { data } = await authClient.updateUser({
@@ -205,7 +216,14 @@ const ProfileForm = () => {
   };
 
   return (
-    <section className="py-8 sm:py-16 lg:py-20 bg-theme-cream">
+    <section className="relative py-8 sm:py-16 lg:py-20 bg-theme-gold">
+      <Image
+        src="/images/backgrounds/fabric-of-squares.png"
+        width={1000}
+        height={1000}
+        alt="square fabric image background"
+        className="fixed top-0 left-0 w-full h-screen object-cover z-0"
+      />
       <div className="max-w-7xl xl:px-16 lg:px-8 px-4 mx-auto">
         <div className="flex flex-col gap-8 items-center w-full">
           <div className="header flex flex-col gap-2 items-center justify-center">
@@ -214,12 +232,30 @@ const ProfileForm = () => {
               width={50}
               height={50}
               alt="church of boumerdes logo"
-              className="bg-[#0001]"
+              className="bg-[#fff5]"
             />
             <h1>The Church of Boumerdes</h1>
           </div>
           <Card className="p-0 max-w-3xl w-full gap-0 bg-[#fff7]">
             <CardHeader className="gap-6 px-6 pt-4 border-b border-theme-gold pb-4">
+              {!shouldForceEditMode && (
+                <div className="flex items-center justify-between gap-4 rounded-md border border-theme-gold/30 bg-[#fff4] px-3 py-2">
+                  <div className="flex flex-col">
+                    <p className="text-sm font-medium text-primary">
+                      Enable profile editing
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Turn this on to confirm you want to modify your account
+                      details.
+                    </p>
+                  </div>
+                  <Switch
+                    checked={isEditEnabled}
+                    onCheckedChange={setIsEditEnabled}
+                    aria-label="Enable profile editing"
+                  />
+                </div>
+              )}
               <div className="flex flex-col gap-2">
                 <h2 className="text-base font-medium text-card-foreground">
                   Edit your profile
@@ -233,7 +269,10 @@ const ProfileForm = () => {
               <div className="flex sm:flex-row flex-col gap-6">
                 <div className="max-w-md w-full md:pe-10 sm:border-e border-theme-gold sm:order-first order-last">
                   <form className="flex flex-col gap-6">
-                    <div className="flex flex-col gap-4 *:bg-[#fff5] *:p-2 *:rounded-md">
+                    <fieldset
+                      disabled={!canEditProfile}
+                      className="flex flex-col gap-4 *:bg-[#fff5] *:p-2 *:rounded-md disabled:opacity-70"
+                    >
                       <Field className="gap-1.5">
                         <FieldLabel
                           htmlFor="name"
@@ -526,7 +565,9 @@ const ProfileForm = () => {
                           <SelectContent>
                             <SelectItem value="french">French</SelectItem>
                             <SelectItem value="english">English</SelectItem>
-                            <SelectItem value="portugais">Portugais</SelectItem>
+                            <SelectItem value="portugais">
+                              Portuguese
+                            </SelectItem>
                           </SelectContent>
                         </Select>
                         {errors.language && (
@@ -535,7 +576,7 @@ const ProfileForm = () => {
                           </p>
                         )}
                       </Field>
-                    </div>
+                    </fieldset>
                   </form>
                 </div>
                 <div className="flex-1">
@@ -581,7 +622,7 @@ const ProfileForm = () => {
                 </Button>
                 <Button
                   onClick={handleSubmit}
-                  disabled={!isFormValid() || isUpdating}
+                  disabled={!canEditProfile || !isFormValid() || isUpdating}
                   className="rounded-lg cursor-pointer h-9 hover:bg-primary/80 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isUpdating ? "updating..." : "Save Changes"}

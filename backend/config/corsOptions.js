@@ -1,6 +1,5 @@
 import allowedOrigins from "./allowedOrigins.js";
 const corsOptions = {
-  origin: true,
   origin: (origin, callBack) => {
     if (
       allowedOrigins.indexOf(origin) !== -1 ||
@@ -13,6 +12,7 @@ const corsOptions = {
     }
   },
   credentials: true,
+  exposedHeaders: ["Content-Disposition", "Content-Type", "Content-Length"],
   optionsSuccessStatus: 200,
 };
 

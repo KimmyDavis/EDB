@@ -2,6 +2,15 @@ import { Event } from "../models/eventsModel.js";
 import mongoose from "mongoose";
 import _ from "lodash";
 import { User } from "../models/usersModel.js";
+import PDFDocument from "pdfkit";
+
+const sanitizeFilenamePart = (value) =>
+  String(value)
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 80) || "event";
 
 const createEvent = async (req, res) => {
   const {
@@ -54,26 +63,34 @@ const getEvents = async (req, res) => {
     theme,
     populateUsers,
   } = req.query;
-  const searchFields = [
-    "eventId",
-    "title",
-    "startDate",
-    "endDate",
-    "date",
-    "venue",
-    "code",
-    "theme",
-  ];
+  const shouldPopulateUsers = [true, "true", "1", 1].includes(populateUsers);
+
   if (eventId) {
     if (!mongoose.Types.ObjectId.isValid(eventId)) {
       return res.status(400).json({ message: "Invalid event ID." });
     }
+
     const event = await Event.findById(eventId).lean();
     if (!event) {
       return res.status(404).json({ message: "Event not found." });
     }
+
+    if (shouldPopulateUsers) {
+      const participantsList = await User.find({
+        _id: { $in: event.participants || [] },
+      }).lean();
+
+      return res.status(200).json({
+        event: {
+          ...event,
+          participantsList,
+        },
+      });
+    }
+
     return res.status(200).json({ event });
   }
+
   let query = {};
   if (title) query.title = { $regex: title, $options: "i" };
   if (venue) query.venue = { $regex: venue, $options: "i" };
@@ -86,21 +103,25 @@ const getEvents = async (req, res) => {
     if (startDate) query.date.$gte = new Date(startDate);
     if (endDate) query.date.$lte = new Date(endDate);
   }
+
   const events = await Event.find(query).lean();
   if (!events.length) {
     return res.status(404).json({ message: "No events found." });
   }
-  if (populateUsers) {
-    events = await Promise.all(
+
+  let responseEvents = events;
+  if (shouldPopulateUsers) {
+    responseEvents = await Promise.all(
       events.map(async (event) => ({
         ...event,
-        participants: await User.find({
+        participantsList: await User.find({
           _id: { $in: event.participants },
         }).lean(),
       })),
     );
   }
-  return res.status(200).json({ events });
+
+  return res.status(200).json({ events: responseEvents });
 };
 
 const updateEvent = async (req, res) => {
@@ -221,4 +242,157 @@ const joinOrLeaveEvent = async (req, res) => {
     .json({ message: `User ${action}ed event successfully.`, event });
 };
 
-export { createEvent, getEvents, updateEvent, deleteEvent, joinOrLeaveEvent };
+const downloadEventParticipantsPdf = async (req, res) => {
+  const { eventId, fields } = req.body;
+  console.log(fields);
+
+  if (!eventId || !mongoose.Types.ObjectId.isValid(eventId)) {
+    return res.status(400).json({ message: "A valid eventId is required." });
+  }
+
+  if (!Array.isArray(fields) || fields.length === 0) {
+    return res
+      .status(400)
+      .json({ message: "fields must be a non-empty array and include name." });
+  }
+
+  const normalizedFields = [
+    ...new Set(fields.map((field) => String(field).trim()).filter(Boolean)),
+  ];
+
+  if (!normalizedFields.includes("name")) {
+    return res.status(400).json({ message: "name field is required." });
+  }
+
+  const selectableUserFields = Object.keys(User.schema.paths).filter(
+    (field) => !["__v"].includes(field),
+  );
+  const invalidFields = normalizedFields.filter(
+    (field) => !selectableUserFields.includes(field),
+  );
+
+  if (invalidFields.length) {
+    return res.status(400).json({
+      message: "Some requested fields are invalid.",
+      invalidFields,
+    });
+  }
+
+  const event = await Event.findById(eventId).lean();
+  if (!event) {
+    return res.status(404).json({ message: "Event not found." });
+  }
+
+  const participantIds = Array.isArray(event.participants)
+    ? event.participants
+    : [];
+
+  if (!participantIds.length) {
+    return res
+      .status(404)
+      .json({ message: "No participants found for event." });
+  }
+
+  const projection = normalizedFields.reduce(
+    (acc, field) => ({ ...acc, ...{ username: 1, name: 1 }, [field]: 1 }),
+    { _id: 1 },
+  );
+  const users = await User.find(
+    {
+      _id: { $in: participantIds },
+    },
+    projection,
+  ).lean();
+  console.log(projection);
+
+  const usersById = new Map(users.map((user) => [String(user._id), user]));
+  const participants = participantIds
+    .map((participantId) => usersById.get(String(participantId)))
+    .filter(Boolean);
+
+  if (!participants.length) {
+    return res.status(404).json({ message: "No participant records found." });
+  }
+
+  const missingNameIndex = participants.findIndex(
+    (participant) => !String(participant?.name || "").trim(),
+  );
+  if (missingNameIndex !== -1) {
+    return res.status(400).json({
+      message: `participant name is missing for participant at row ${missingNameIndex + 1}.`,
+    });
+  }
+
+  const timestamp = Date.now();
+  const generatedDate = new Date(timestamp).toLocaleDateString("en-GB");
+  const safeTitle = sanitizeFilenamePart(event.title || "event");
+  const filename = `${safeTitle}-${timestamp}.pdf`;
+
+  const doc = new PDFDocument({ margin: 50, size: "A4" });
+  const chunks = [];
+  let responseClosed = false;
+
+  res.on("close", () => {
+    responseClosed = true;
+  });
+
+  doc.on("data", (chunk) => chunks.push(chunk));
+  doc.on("error", (err) => {
+    if (responseClosed || res.headersSent) {
+      return;
+    }
+    return res
+      .status(500)
+      .json({ message: "Failed to generate PDF.", error: err.message });
+  });
+
+  doc.on("end", () => {
+    if (responseClosed || res.headersSent) {
+      return;
+    }
+
+    const pdfBuffer = Buffer.concat(chunks);
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+    res.setHeader("Content-Length", pdfBuffer.length);
+    return res.status(200).send(pdfBuffer);
+  });
+
+  doc.fontSize(20).text(`Event: ${event.title || "Event"}`);
+  doc.moveDown(0.6);
+  doc.fontSize(11).text(`Generated on: ${generatedDate}`);
+  doc.moveDown(0.5);
+  doc.fontSize(11).text(`Participants count: ${participants.length}`);
+  doc.moveDown(1);
+
+  doc.font("Helvetica").fontSize(10);
+
+  participants.forEach((participant, index) => {
+    const participantName = String(participant.username || "N/A");
+    doc
+      .font("Helvetica-Bold")
+      .fontSize(12)
+      .text(`${index + 1}. ${participantName}`);
+    doc.font("Helvetica").fontSize(10);
+
+    normalizedFields.forEach((field) => {
+      const value = participant[field];
+      const formattedValue =
+        value === undefined || value === null ? "N/A" : String(value);
+      doc.text(`   - ${field}: ${formattedValue}`);
+    });
+
+    doc.moveDown(0.6);
+  });
+
+  doc.end();
+};
+
+export {
+  createEvent,
+  getEvents,
+  updateEvent,
+  deleteEvent,
+  joinOrLeaveEvent,
+  downloadEventParticipantsPdf,
+};

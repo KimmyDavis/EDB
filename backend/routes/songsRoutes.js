@@ -3,10 +3,10 @@ import songsController from "../controllers/songsController.js";
 import { checkJwt } from "../middleware/verifyJWT.js";
 
 const router = express.Router();
+router.get("/", songsController.querySongs);
 router.use(checkJwt);
 router
   .route("/")
-  .get(songsController.querySongs)
   .post(songsController.createSong)
   .patch(songsController.editSong)
   .delete(songsController.deleteSong);
