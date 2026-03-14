@@ -22,6 +22,7 @@ import { toast } from "sonner";
 import { useState } from "react";
 import { Tent } from "lucide-react";
 import { Building } from "lucide-react";
+import usePublicRoute from "@/hooks/use-public-route";
 
 const endpoints = [
   {
@@ -72,9 +73,13 @@ export function AppSidebar() {
   const router = useRouter();
   const { setOpenMobile } = useSidebar();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const { data, error, isPending } = authClient.useSession();
+  const isPublicRoute = usePublicRoute();
+  const { data, isPending } = authClient.useSession();
+  const hasSession = !!data?.session;
   const { user } = data || {};
   const isAdmin = user?.role === "admin";
+
+  if (isPublicRoute && (isPending || !hasSession)) return null;
 
   const handleNavigate = (path) => {
     router.push(path);
@@ -131,14 +136,23 @@ export function AppSidebar() {
         <SidebarGroup />
       </SidebarContent>
       <SidebarFooter className="bg-theme-cream">
-        <div className="usr text-primary capitalize">{user?.username}</div>
-        <Button
-          onClick={handleLogout}
-          disabled={isLoggingOut}
-          className="bg-theme-gold hover:bg-theme-gold/60"
-        >
-          {isLoggingOut ? "Logging out..." : "Logout"}
-        </Button>
+        <div className="usr flex flex-col text-primary capitalize">
+          <span>{user?.username}</span>
+          <Button
+            type="button"
+            onClick={() => handleNavigate("/auth/edit-profile")}
+            className=" text-sm text-theme-cream hover:bg-primary/70"
+          >
+            Manage account
+          </Button>
+          <Button
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+            className="bg-theme-gold hover:bg-theme-gold/60 mt-5"
+          >
+            {isLoggingOut ? "Logging out..." : "Logout"}
+          </Button>
+        </div>
       </SidebarFooter>
     </Sidebar>
   );

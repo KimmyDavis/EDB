@@ -1,17 +1,23 @@
 "use client";
-import { usePathname, useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import React from "react";
 import useAuth from "@/hooks/use-auth";
 import { SidebarTrigger } from "./ui/sidebar";
 import { MenuIcon } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import Image from "next/image";
+import usePublicRoute from "@/hooks/use-public-route";
+import { authClient } from "@/lib/authClient";
 
 const Header = () => {
   const isMobile = useIsMobile();
   const router = useRouter();
-  const pathname = usePathname();
+  const isPublicRoute = usePublicRoute();
   const { isEditor } = useAuth();
+  const { data, isPending } = authClient.useSession();
+  const hasSession = !!data?.session;
+
+  if (isPublicRoute && (isPending || !hasSession)) return null;
 
   return (
     <div className="relative overflow-hidden bg-theme-gold w-full h-16 text-primary-foreground flex flex-row items-center py-12 select-none">

@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { eventsApiSlice } from "@/features/events/eventsApiSlice";
-import { Trash2, Edit, Plus } from "lucide-react";
+import { Trash2, Edit, Plus, Eye } from "lucide-react";
 import { authClient } from "@/lib/authClient";
 
 const EventsPage = () => {
@@ -261,24 +261,44 @@ const EventsPage = () => {
                   ></div> */}
 
                   <CardHeader className="pb-3">
-                    <h3 className="text-lg font-bold text-slate-900 truncate">
-                      {event.title}
-                    </h3>
-                    <p className="text-xs text-slate-600 mt-1">{event.venue}</p>
-                    {userId && (
-                      <span
-                        className={
-                          "text-xs font-semibold mt-1 " +
-                          (isParticipant(event)
-                            ? "text-green-600"
-                            : "text-slate-500")
-                        }
-                      >
-                        {isParticipant(event)
-                          ? "You are participating"
-                          : "You are not participating"}
-                      </span>
-                    )}
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <h3 className="text-lg font-bold text-slate-900 truncate">
+                          {event.title}
+                        </h3>
+                        <p className="text-xs text-slate-600 mt-1">
+                          {event.venue}
+                        </p>
+                        {userId && (
+                          <span
+                            className={
+                              "text-xs font-semibold mt-1 " +
+                              (isParticipant(event)
+                                ? "text-green-600"
+                                : "text-slate-500")
+                            }
+                          >
+                            {isParticipant(event)
+                              ? "You are participating"
+                              : "You are not participating"}
+                          </span>
+                        )}
+                      </div>
+
+                      {isAdmin && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() =>
+                            router.push(`/home/events/${event._id || event.id}`)
+                          }
+                          className="shrink-0 flex items-center gap-1"
+                        >
+                          <Eye size={16} />
+                          Details
+                        </Button>
+                      )}
+                    </div>
                   </CardHeader>
 
                   <CardContent className="space-y-3">

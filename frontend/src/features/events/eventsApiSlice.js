@@ -55,6 +55,47 @@ export const eventsApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: () => [{ type: "Events", id: "LIST" }],
     }),
+    downloadEventParticipantsPdf: builder.mutation({
+      query: ({ eventId, fields }) => ({
+        url: "/events/participants/pdf",
+        method: "POST",
+        body: { eventId, fields },
+        responseHandler: async (response) => ({
+          blob: await response.blob(),
+          disposition: response.headers.get("content-disposition") || "",
+        }),
+      }),
+      transformResponse: (response) => {
+        const now = new Date();
+        const timestamp =
+          [
+            now.getFullYear(),
+            String(now.getMonth() + 1).padStart(2, "0"),
+            String(now.getDate()).padStart(2, "0"),
+          ].join("") +
+          "-" +
+          [
+            String(now.getHours()).padStart(2, "0"),
+            String(now.getMinutes()).padStart(2, "0"),
+            String(now.getSeconds()).padStart(2, "0"),
+          ].join("");
+        const fallbackName = `participants-${timestamp}.pdf`;
+        const match = response?.disposition?.match(
+          /filename\*=UTF-8''([^;]+)|filename="?([^";]+)"?/i,
+        );
+        const rawFileName = match?.[1] || match?.[2] || fallbackName;
+        const fileName = decodeURIComponent(rawFileName);
+        const fileUrl =
+          typeof window !== "undefined" && response?.blob
+            ? window.URL.createObjectURL(response.blob)
+            : "";
+
+        return {
+          fileUrl,
+          fileName,
+        };
+      },
+    }),
   }),
 });
 
@@ -82,4 +123,5 @@ export const {
   useUpdateEventMutation,
   useJoinOrLeaveEventMutation,
   useDeleteEventMutation,
+  useDownloadEventParticipantsPdfMutation,
 } = eventsApiSlice;

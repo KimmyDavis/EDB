@@ -33,7 +33,6 @@ app.use(express.json());
 app.use("/", express.static(path.join(__dirname, "public")));
 
 // routes
-app.use(checkJwt);
 import songsRoutes from "./routes/songsRoutes.js";
 import massRoutes from "./routes/massRoutes.js";
 import eventsRoutes from "./routes/eventsRoutes.js";
