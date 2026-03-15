@@ -224,7 +224,7 @@ const ProfileForm = () => {
         alt="square fabric image background"
         className="fixed top-0 left-0 w-full h-screen object-cover z-0"
       />
-      <div className="max-w-7xl xl:px-16 lg:px-8 px-4 mx-auto">
+      <div className="max-w-7xl z-10 xl:px-16 lg:px-8 px-4 mx-auto">
         <div className="flex flex-col gap-8 items-center w-full">
           <div className="header flex flex-col gap-2 items-center justify-center">
             <Image
