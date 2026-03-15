@@ -23,6 +23,7 @@ import { useState } from "react";
 import { Tent } from "lucide-react";
 import { Building } from "lucide-react";
 import usePublicRoute from "@/hooks/use-public-route";
+import { PwaInstallButton } from "./PwaInstallButton";
 
 const endpoints = [
   {
@@ -136,6 +137,7 @@ export function AppSidebar() {
         <SidebarGroup />
       </SidebarContent>
       <SidebarFooter className="bg-theme-cream">
+        <PwaInstallButton />
         <div className="usr flex flex-col text-primary capitalize">
           <span>{user?.username}</span>
           <Button
