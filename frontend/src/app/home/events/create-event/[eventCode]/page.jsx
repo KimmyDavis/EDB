@@ -169,12 +169,12 @@ const CreateEventPage = ({ params }) => {
 
       if (eventCode === "new") {
         const createResponse = await createEvent(eventData).unwrap();
+      } else {
+        const updateResponse = await updateEvent({
+          id: eventCode,
+          ...eventData,
+        }).unwrap();
       }
-      const updateResponse = await updateEvent({
-        id: eventCode,
-        ...eventData,
-      }).unwrap();
-      console.log(updateResponse);
 
       toast.success("Event submitted successfully!");
       router.push("/home/events");
@@ -182,7 +182,7 @@ const CreateEventPage = ({ params }) => {
       console.error("Failed to submit event:", error);
       toast.error(
         error?.data?.message ||
-          "Failed to creasubmitte event. Please try again.",
+          "Failed to submit the event. Please try again.",
       );
     }
   };
