@@ -377,7 +377,7 @@ export default function Home() {
                   <Card className="bg-[#fff5] border-slate-200/50 hover:border-theme-gold/50 hover:shadow-lg transition-all p-5 h-full flex flex-col">
                     <div className="mb-4">
                       <p className="text-xs font-semibold text-theme-gold uppercase tracking-wider">
-                        {formatDate(event.startDate)}
+                        {formatDate(event.date)}
                       </p>
                       <h3 className="text-base font-bold text-slate-900 mt-2 line-clamp-2">
                         {event.title}
