@@ -14,6 +14,7 @@ import Image from "next/image";
 import { eventsApiSlice } from "@/features/events/eventsApiSlice";
 import { Trash2, Edit, Plus, Eye } from "lucide-react";
 import { authClient } from "@/lib/authClient";
+import { canAccessRole } from "@/lib/roles";
 
 const EventsPage = () => {
   const router = useRouter();
@@ -23,6 +24,7 @@ const EventsPage = () => {
   const { data: authData } = authClient.useSession();
   const { user } = authData || {};
   const isAdmin = user?.role === "admin";
+  const canManageEvents = canAccessRole(user?.role, "media");
 
   // join/leave mutation
   const [joinOrLeaveEvent] = eventsApiSlice.useJoinOrLeaveEventMutation();
@@ -163,12 +165,12 @@ const EventsPage = () => {
             <div>
               <h1 className="text-3xl font-bold text-slate-900">All Events</h1>
               <p className="text-sm text-slate-700 mt-1">
-                {isAdmin
+                {canManageEvents
                   ? "Manage and view all created events"
                   : "Browse and join available events"}
               </p>
             </div>
-            {isAdmin && (
+            {canManageEvents && (
               <Button
                 onClick={() => router.push("/home/events/create-event/new")}
                 className="bg-primary hover:bg-primary/90 flex items-center gap-2"
@@ -227,9 +229,11 @@ const EventsPage = () => {
             <Card className="bg-[#fff5] text-center py-12">
               <CardContent>
                 <p className="text-slate-700 mb-4">
-                  {isAdmin ? "No events found" : "No events available to join"}
+                  {canManageEvents
+                    ? "No events found"
+                    : "No events available to join"}
                 </p>
-                {isAdmin && (
+                {canManageEvents && (
                   <Button
                     onClick={() => router.push("/home/events/create-event")}
                     className="bg-blue-600 hover:bg-blue-700"
@@ -285,7 +289,7 @@ const EventsPage = () => {
                         )}
                       </div>
 
-                      {isAdmin && (
+                      {canManageEvents && (
                         <Button
                           variant="outline"
                           size="sm"
@@ -411,7 +415,7 @@ const EventsPage = () => {
                     )}
 
                     {/* admin controls */}
-                    {isAdmin && (
+                    {canManageEvents && (
                       <>
                         <Button
                           variant="outline"

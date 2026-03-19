@@ -32,7 +32,6 @@ import { toast } from "sonner";
 import SongDisplay from "@/components/SongDisplay";
 import { ArrowUp } from "lucide-react";
 import { ArrowDown } from "lucide-react";
-import useAuth from "@/hooks/use-auth";
 import { MultiSelect } from "@/components/multi-select";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -40,7 +39,6 @@ import Image from "next/image";
 const CreateSong = ({ params }) => {
   // hooks
   const router = useRouter();
-  const { isEditor } = useAuth();
   const { songId } = use(params);
   const [submitSong, { isLoading, isSuccess, isError, error }] =
     useCreateSongMutation();
@@ -305,14 +303,6 @@ const CreateSong = ({ params }) => {
       toast.success("Failed! 😔");
     }
   }, [isError, isEditError]);
-
-  if (!isEditor) {
-    return (
-      <div className="pword w-full flex items-center justify-center">
-        <p>You are not allowed to access this content.</p>
-      </div>
-    );
-  }
 
   return (
     <div className="relative bg-theme-gold/90 min-h-screen p-6">

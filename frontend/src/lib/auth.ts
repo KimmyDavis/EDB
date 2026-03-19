@@ -2,8 +2,9 @@ import { betterAuth } from "better-auth";
 import { MongoClient } from "mongodb";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
 import { admin, jwt, username } from "better-auth/plugins";
+import { adminAc, userAc } from "better-auth/plugins/admin/access";
 import { customAlphabet } from "nanoid";
-import { sendEmail } from "./sendEmail";
+import { sendVerificationEmail, sendPasswordResetEmail } from "./sendEmail";
 const randomCode = customAlphabet("1234567890ABDCEFG", 8);
 
 const client = new MongoClient(process.env.MONGODB_URL!);
@@ -18,20 +19,32 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     autoSignIn: false,
+    sendResetPassword: async ({
+      user,
+      url,
+    }: {
+      user: { name: string; email: string };
+      url: string;
+    }) => {
+      await sendPasswordResetEmail(url, user);
+    },
   },
   emailVerification: {
-    sendVerificationEmail: async ({ user, url, token }, request) => {
-      sendEmail({
-        to: user.email,
-        subject: "Verify your email address",
-        html: `Click the link to verify your email: ${url}`,
-      });
+    sendVerificationEmail: async ({ user, url }) => {
+      await sendVerificationEmail(user, url);
     },
     sendOnSignUp: true,
   },
   plugins: [
     username(),
-    admin(),
+    admin({
+      roles: {
+        admin: adminAc,
+        user: userAc,
+        liturgy: userAc,
+        media: userAc,
+      },
+    }),
     jwt({ jwks: { jwksPath: "/secure/jwks.json" } }),
   ],
   session: {
@@ -41,6 +54,11 @@ export const auth = betterAuth({
     },
   },
   user: {
+    changeEmail: {
+      enabled: true,
+      // Allow unverified users to switch to a correct email before verification.
+      updateEmailWithoutVerification: true,
+    },
     additionalFields: {
       phone: {
         type: "string",
@@ -109,6 +127,12 @@ export const auth = betterAuth({
         type: "string",
         required: false,
         defaultValue: "english",
+        input: true,
+      },
+      verified: {
+        type: "boolean",
+        required: false,
+        defaultValue: false,
         input: true,
       },
     },

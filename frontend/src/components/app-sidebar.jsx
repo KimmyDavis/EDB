@@ -22,8 +22,10 @@ import { toast } from "sonner";
 import { useState } from "react";
 import { Tent } from "lucide-react";
 import { Building } from "lucide-react";
+import { UserCheck } from "lucide-react";
 import usePublicRoute from "@/hooks/use-public-route";
 import { PwaInstallButton } from "./PwaInstallButton";
+import { canAccessRole } from "@/lib/roles";
 
 const endpoints = [
   {
@@ -42,7 +44,7 @@ const endpoints = [
     title: "Create Mass",
     path: "/home/mass/mass-editor/new",
     icon: <Pencil />,
-    role: "admin",
+    role: "liturgy",
   },
   {
     title: "Songs",
@@ -54,7 +56,7 @@ const endpoints = [
     title: "Add song",
     path: "/home/songs/song-editor/new",
     icon: <Plus />,
-    role: "admin",
+    role: "liturgy",
   },
   {
     title: "Events",
@@ -66,6 +68,12 @@ const endpoints = [
     title: "New event",
     path: "/home/events/create-event",
     icon: <Tent />,
+    role: "media",
+  },
+  {
+    title: "Admin Actions",
+    path: "/auth/admin-actions",
+    icon: <UserCheck />,
     role: "admin",
   },
 ];
@@ -78,7 +86,7 @@ export function AppSidebar() {
   const { data, isPending } = authClient.useSession();
   const hasSession = !!data?.session;
   const { user } = data || {};
-  const isAdmin = user?.role === "admin";
+  const userRole = user?.role;
 
   if (isPublicRoute && (isPending || !hasSession)) return null;
 
@@ -119,7 +127,7 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <div className="endpoints flex flex-col">
               {endpoints.map((endp, i) => {
-                if (endp.role == "admin" && !isAdmin) return;
+                if (!canAccessRole(userRole, endp.role)) return;
                 return (
                   <Button
                     key={endp.title + i}
