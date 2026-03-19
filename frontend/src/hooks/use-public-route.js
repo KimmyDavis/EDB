@@ -6,6 +6,7 @@ export function isPublicRoutePath(pathname = "") {
   return (
     pathname === "/" ||
     pathname === "/auth/sign-up" ||
+    pathname === "/auth/forgot-password" ||
     /^\/home\/mass\/[^/]+\/?$/.test(pathname)
   );
 }

@@ -22,6 +22,7 @@ export default function Home() {
     data: eventsData,
     isLoading: isEventsLoading,
     isError: isEventsError,
+    error,
   } = useQueryEventsQuery({});
   let massesList = massData?.mass;
   let eventsList = eventsData?.events;
@@ -222,7 +223,6 @@ export default function Home() {
 
                   <div className="mt-4 flex items-center gap-2">
                     <Button
-                      asChild
                       size="sm"
                       className="bg-theme-gold hover:bg-theme-gold/90 text-white"
                     >
@@ -358,7 +358,7 @@ export default function Home() {
                 </Card>
               ))}
             </div>
-          ) : isEventsError ? (
+          ) : isEventsError && error.status !== 404 ? (
             <Card className="bg-red-50/50 border-red-200 p-6">
               <div className="flex items-center gap-3 text-red-700">
                 <AlertCircle className="w-5 h-5" />

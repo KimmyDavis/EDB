@@ -55,7 +55,9 @@ const ProfileForm = () => {
 
   const [errors, setErrors] = useState({});
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const [isEditEnabled, setIsEditEnabled] = useState(false);
+  const [showPolicyNotice, setShowPolicyNotice] = useState(false);
   const shouldForceEditMode = !!user && !hasRequiredProfileInfo(user);
   const canEditProfile = shouldForceEditMode || isEditEnabled;
 
@@ -215,6 +217,35 @@ const ProfileForm = () => {
     setIsUpdating(false);
   };
 
+  const handleDeleteAccount = async () => {
+    const shouldDelete = window.confirm(
+      "Delete your account permanently? This action cannot be undone.",
+    );
+
+    if (!shouldDelete) return;
+
+    setIsDeletingAccount(true);
+
+    try {
+      const { error } = await authClient.deleteUser({ callbackURL: "/" });
+
+      if (error) {
+        toast.error(
+          error.message ||
+            "Could not delete account. Please sign in again and retry.",
+        );
+        return;
+      }
+
+      toast.success("Your account has been deleted.");
+      router.push("/");
+    } catch (error) {
+      toast.error(error.message || "Something went wrong.");
+    } finally {
+      setIsDeletingAccount(false);
+    }
+  };
+
   return (
     <section className="relative py-8 sm:py-16 lg:py-20 bg-theme-gold">
       <Image
@@ -297,7 +328,7 @@ const ProfileForm = () => {
                           htmlFor="email"
                           className="text-sm text-muted-foreground font-normal"
                         >
-                          Email
+                          Email <i>(currently not editable)</i>
                         </FieldLabel>
                         <Input
                           id="email"
@@ -585,9 +616,36 @@ const ProfileForm = () => {
                       <h6 className="text-primary text-sm font-medium">
                         User profile
                       </h6>
-                      <p className="text-sm text-muted-foreground font-normal">
-                        By submitting this form you agree to the terms of use.
+                      <p className="text-sm text-muted-foreground font-normal leading-6">
+                        By submitting this form you agree to our{" "}
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setShowPolicyNotice((current) => !current)
+                          }
+                          className="underline underline-offset-4 text-primary hover:text-primary/80"
+                        >
+                          privacy policy and terms of use
+                        </button>
+                        .
                       </p>
+                      {showPolicyNotice && (
+                        <div className="text-xs text-muted-foreground leading-5 rounded-md border border-theme-gold/25 bg-[#fff4] p-3">
+                          <p>
+                            Your information is used only for account management
+                            and identification in events you attend.
+                          </p>
+                          <p>
+                            Access to your data is restricted to authorized
+                            administrators for intended church operations only.
+                          </p>
+                          <p>
+                            Your data is not shared with third parties unless
+                            explicitly authorized and released by admins for a
+                            valid and approved purpose.
+                          </p>
+                        </div>
+                      )}
                     </div>
                     <div className="icon flex w-full items-center justify-center text-theme-gold">
                       {formData.gender == "f" ? (
@@ -603,6 +661,16 @@ const ProfileForm = () => {
                       <p className="text-sm text-muted-foreground font-normal">
                         {formData?.email || ""}
                       </p>
+                      <button
+                        type="button"
+                        onClick={handleDeleteAccount}
+                        disabled={isDeletingAccount}
+                        className="mt-3 text-xs font-medium text-red-600 underline underline-offset-4 transition hover:text-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {isDeletingAccount
+                          ? "Deleting account..."
+                          : "Delete account"}
+                      </button>
                     </div>
                   </div>
                 </div>
