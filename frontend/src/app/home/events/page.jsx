@@ -211,7 +211,7 @@ const EventsPage = () => {
         )}
 
         {/* Error State */}
-        {error && (
+        {error && error.status !== 404 && (
           <div className="max-w-6xl mx-auto">
             <Card className="bg-red-50 border-red-200">
               <CardContent className="pt-6">
@@ -224,27 +224,29 @@ const EventsPage = () => {
         )}
 
         {/* Empty State */}
-        {!isLoading && !error && events.length === 0 && (
-          <div className="max-w-6xl mx-auto">
-            <Card className="bg-[#fff5] text-center py-12">
-              <CardContent>
-                <p className="text-slate-700 mb-4">
-                  {canManageEvents
-                    ? "No events found"
-                    : "No events available to join"}
-                </p>
-                {canManageEvents && (
-                  <Button
-                    onClick={() => router.push("/home/events/create-event")}
-                    className="bg-blue-600 hover:bg-blue-700"
-                  >
-                    Create Your First Event
-                  </Button>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-        )}
+        {!isLoading &&
+          (!error || error.status === 404) &&
+          events.length === 0 && (
+            <div className="max-w-6xl mx-auto">
+              <Card className="bg-[#fff5] text-center py-12">
+                <CardContent>
+                  <p className="text-slate-700 mb-4">
+                    {canManageEvents
+                      ? "No events found"
+                      : "No events available to join"}
+                  </p>
+                  {canManageEvents && (
+                    <Button
+                      onClick={() => router.push("/home/events/create-event")}
+                      className="bg-blue-600 hover:bg-blue-700"
+                    >
+                      Create Your First Event
+                    </Button>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          )}
 
         {/* Events Grid */}
         {!isLoading && !error && filteredEvents.length > 0 && (

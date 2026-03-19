@@ -30,10 +30,15 @@ export const sendEmail = async ({
   });
 };
 
-export const sendPasswordResetEmail = async (
-  url: string,
-  user: { name: string; email: string },
-) => {
+export const sendPasswordResetEmail = async ({
+  url,
+  token,
+  user,
+}: {
+  url: string;
+  token: string;
+  user: { name: string; email: string };
+}) => {
   const messageTemplate = `
 <!DOCTYPE html>
 <html lang="en">
@@ -108,6 +113,20 @@ export const sendPasswordResetEmail = async (
         font-weight: 600;
         font-size: 16px;
       }
+      .code-box {
+        margin: 0 auto 18px;
+        max-width: 100%;
+        padding: 16px 18px;
+        border-radius: 10px;
+        background-color: #fff7df;
+        border: 1px dashed #bc9106;
+        color: #7a5c05;
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 18px;
+        font-weight: 700;
+        letter-spacing: 1.2px;
+        word-break: break-all;
+      }
       .button-note {
         font-size: 12px;
         color: #888;
@@ -166,28 +185,29 @@ export const sendPasswordResetEmail = async (
   <body>
     <div class="email-container">
       <div class="header">
-        <h1>🔐 Password Reset Request</h1>
+        <h1>Password Reset Request</h1>
         <p>Eglise de Boumerdes — Parish Portal</p>
       </div>
       <div class="content">
         <div class="greeting">Hello ${user.name},</div>
         <div class="message">
-          We received a request to reset the password for your Eglise de Boumerdes account. Click the button below to create a new password and regain access to the parish portal.
+          We received a request to reset the password for your Eglise de Boumerdes account. Use the reset code below on the password reset page to create a new password.
         </div>
 
         <div class="action-section">
-          <a href="${url}" class="action-button">Reset My Password</a>
+          <div class="code-box">${token}</div>
+          <a href="${url}" class="action-button">Open Reset Page</a>
           <div class="button-note">
-            Or copy this link: <a href="${url}">${url}</a>
+            You can also copy this link directly: <a href="${url}">${url}</a>
           </div>
         </div>
 
         <div class="info-section">
-          <strong>Note:</strong> This link will expire in 1 hour. If you did not request a password reset, you can safely ignore this email — your account remains secure.
+          <strong>Note:</strong> This code expires in 1 hour. If you use the button above, the code will be filled in automatically on the reset page.
         </div>
 
         <div class="warning-section">
-          <strong>Security Reminder:</strong> Never share this link with anyone. Our team will never ask for your reset link via email or phone.
+          <strong>Security Reminder:</strong> Never share this code or link with anyone. Our team will never ask for your reset credentials by email or phone.
         </div>
 
         <div class="message" style="margin-top: 20px; font-size: 14px; color: #888;">
@@ -211,7 +231,7 @@ export const sendPasswordResetEmail = async (
   await sendEmail({
     to: user.email,
     subject: "Password Reset Request — Eglise de Boumerdes",
-    text: `Reset your password by visiting: ${url}`,
+    text: `Use this reset code to update your password: ${token}. You can also open the reset page here: ${url}`,
     html: messageTemplate,
   });
 };

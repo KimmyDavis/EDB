@@ -22,11 +22,13 @@ export const auth = betterAuth({
     sendResetPassword: async ({
       user,
       url,
+      token,
     }: {
       user: { name: string; email: string };
       url: string;
+      token: string;
     }) => {
-      await sendPasswordResetEmail(url, user);
+      await sendPasswordResetEmail({ url, token, user });
     },
   },
   emailVerification: {
@@ -54,6 +56,9 @@ export const auth = betterAuth({
     },
   },
   user: {
+    deleteUser: {
+      enabled: true,
+    },
     changeEmail: {
       enabled: true,
       // Allow unverified users to switch to a correct email before verification.
