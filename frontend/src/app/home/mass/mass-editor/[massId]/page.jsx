@@ -1,5 +1,4 @@
 "use client";
-import useAuth from "@/hooks/use-auth";
 import React, { use, useEffect, useState } from "react";
 import {
   Field,
@@ -104,7 +103,6 @@ const MassEditor = ({ params }) => {
   // hooks
   const router = useRouter();
   const { massId } = use(params);
-  const { isEditor } = useAuth();
   const { data: songsData, isLoading, isError } = useSelector(selectAllSongs);
   const songs = songsData?.songs || [];
   const getSongTitleById = (songId) => {
@@ -226,13 +224,6 @@ const MassEditor = ({ params }) => {
     </div>
   );
 
-  if (!isEditor) {
-    return renderStatusState(
-      "Restricted page",
-      "You do not have permission to create or edit masses.",
-      true,
-    );
-  }
   if (isLoading) {
     return renderStatusState(
       "Loading songs",
@@ -627,7 +618,7 @@ const MassEditor = ({ params }) => {
                       <SelectTrigger className="w-full">
                         {renderSongSelectValue(
                           mass?.petition?.songId,
-                          "Lord's Prayer song",
+                          "Petitions song",
                         )}
                       </SelectTrigger>
                       <SelectContent>

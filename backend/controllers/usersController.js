@@ -57,6 +57,7 @@ const queryUsers = async (req, res) => {
     course,
     left,
     deleted,
+    verified
   } = req.query;
   const searchFields = [
     "id",
@@ -71,6 +72,7 @@ const queryUsers = async (req, res) => {
     "course",
     "left",
     "deleted",
+    "verified",
   ];
   if (!_.some(searchFields, Boolean)) {
     return res
@@ -89,7 +91,7 @@ const queryUsers = async (req, res) => {
   }
   let query = {};
   for (let field of searchFields) {
-    if (_.has(req.body, filed)) {
+    if (_.has(req.body, field)) {
       query[field] = req.body[field];
     }
   }

@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/authClient";
 import { Edit, Eye, Plus, Trash2 } from "lucide-react";
 import MassShare from "@/components/massComponents/MassShare";
+import { canAccessRole } from "@/lib/roles";
 import {
   Dialog,
   DialogContent,
@@ -35,7 +36,7 @@ const Mass = () => {
 
   const { data: authData } = authClient.useSession();
   const { user } = authData || {};
-  const isAdmin = user?.role === "admin";
+  const canManageMasses = canAccessRole(user?.role, "liturgy");
 
   const {
     data: massData,
@@ -96,13 +97,13 @@ const Mass = () => {
             <div>
               <h1 className="text-3xl font-bold text-slate-900">Masses</h1>
               <p className="text-sm text-slate-700 mt-1">
-                {isAdmin
+                {canManageMasses
                   ? "Manage and preview all masses"
                   : "Browse available masses"}
               </p>
             </div>
 
-            {isAdmin && (
+            {canManageMasses && (
               <Button
                 onClick={() => router.push("/home/mass/mass-editor/new")}
                 className="bg-primary hover:bg-primary/90 flex items-center gap-2"
@@ -155,9 +156,9 @@ const Mass = () => {
             <Card className="bg-[#fff5] text-center py-12">
               <CardContent>
                 <p className="text-slate-700 mb-4">
-                  {isAdmin ? "No masses found" : "No masses available"}
+                  {canManageMasses ? "No masses found" : "No masses available"}
                 </p>
-                {isAdmin && (
+                {canManageMasses && (
                   <Button
                     onClick={() => router.push("/home/mass/mass-editor/new")}
                     className="bg-blue-600 hover:bg-blue-700"
@@ -245,7 +246,7 @@ const Mass = () => {
                         <Eye size={16} /> Preview
                       </Button>
 
-                      {isAdmin && (
+                      {canManageMasses && (
                         <>
                           <Button
                             variant="outline"

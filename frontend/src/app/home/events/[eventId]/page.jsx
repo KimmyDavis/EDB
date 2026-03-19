@@ -3,9 +3,7 @@
 import React, { use, useMemo, useState } from "react";
 import Image from "next/image";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
 import { Download } from "lucide-react";
-import { authClient } from "@/lib/authClient";
 import { eventsApiSlice } from "@/features/events/eventsApiSlice";
 import { Button } from "@/components/ui/button";
 import {
@@ -49,13 +47,8 @@ const formatDate = (dateString) => {
 
 const EventDetailsPage = ({ params }) => {
   const { eventId } = use(params);
-  const router = useRouter();
   const [isDownloadOpen, setIsDownloadOpen] = useState(false);
   const [selectedFields, setSelectedFields] = useState(["name"]);
-
-  const { data: authData, isPending: isAuthPending } = authClient.useSession();
-  const { user } = authData || {};
-  const isAdmin = user?.role === "admin";
 
   const {
     data: eventsResponse,
@@ -121,7 +114,7 @@ const EventDetailsPage = ({ params }) => {
     }
   };
 
-  if (isAuthPending || isLoading) {
+  if (isLoading) {
     return (
       <div className="relative bg-theme-gold/90 min-h-screen p-6">
         <Image
@@ -137,35 +130,6 @@ const EventDetailsPage = ({ params }) => {
             <CardContent className="space-y-3 mt-4">
               <div className="h-4 bg-gray-300 rounded w-3/4"></div>
               <div className="h-4 bg-gray-300 rounded w-1/2"></div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    );
-  }
-
-  if (!isAdmin) {
-    return (
-      <div className="relative bg-theme-gold/90 min-h-screen p-6">
-        <Image
-          src="/images/backgrounds/fabric-of-squares.png"
-          width={1000}
-          height={1000}
-          alt="square fabric image background"
-          className="fixed top-0 left-0 w-full h-screen object-cover z-0"
-        />
-        <div className="relative z-10 max-w-4xl mx-auto">
-          <Card className="bg-red-50 border-red-200">
-            <CardContent className="pt-6">
-              <p className="text-red-800">
-                This page is restricted to administrators only.
-              </p>
-              <Button
-                className="mt-4"
-                onClick={() => router.push("/home/events")}
-              >
-                Back to Events
-              </Button>
             </CardContent>
           </Card>
         </div>
