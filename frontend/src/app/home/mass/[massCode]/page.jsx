@@ -375,9 +375,6 @@ const ShowMass = ({ params }) => {
                               >
                                 {entry?.personality || "N"}
                               </Badge>
-                              <span className="text-xs font-medium text-slate-600">
-                                Part {idx + 1}
-                              </span>
                             </div>
                             <p className="text-sm text-slate-800 whitespace-pre-line leading-relaxed">
                               {entry?.body}
