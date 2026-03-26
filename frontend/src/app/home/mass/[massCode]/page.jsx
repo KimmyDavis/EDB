@@ -6,7 +6,9 @@ import { authClient } from "@/lib/authClient";
 import { prayers } from "@/constants/prayers";
 import Image from "next/image";
 import React, { use, useEffect, useMemo, useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 const LANGUAGE_LABELS = {
   english: "English",
@@ -100,6 +102,8 @@ const ShowMass = ({ params }) => {
   const [selectedPrayerLanguage, setSelectedPrayerLanguage] = useState(
     prayerLanguages.includes(preferredLanguage) ? preferredLanguage : "english",
   );
+  const [passionExpanded, setPassionExpanded] = useState(false);
+  const [selectedPassionEntry, setSelectedPassionEntry] = useState(null);
 
   useEffect(() => {
     setSelectedPrayerLanguage(
@@ -280,7 +284,7 @@ const ShowMass = ({ params }) => {
           }
 
           if (sectionData?.songId) {
-            return (
+            const sectionElement = (
               <section
                 key={section + "-song-" + i}
                 className="rounded-2xl border border-white/50 bg-[#fff6] p-4 sm:p-5"
@@ -297,11 +301,184 @@ const ShowMass = ({ params }) => {
                 )}
               </section>
             );
+
+            if (
+              section === "acclamation" &&
+              Array.isArray(mass?.gospelOfThePassion) &&
+              mass.gospelOfThePassion.length > 0
+            ) {
+              return (
+                <React.Fragment key={section + "-with-passion-" + i}>
+                  {sectionElement}
+                  <section className="rounded-2xl border border-white/50 bg-[#fff6] p-4 sm:p-5">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <h3 className="text-lg sm:text-xl font-semibold text-slate-900">
+                          Gospel Of The Passion
+                        </h3>
+                        <Badge
+                          variant="outline"
+                          className="border-slate-300 bg-slate-100 text-slate-800"
+                        >
+                          {mass.gospelOfThePassion.length}{" "}
+                          {mass.gospelOfThePassion.length === 1
+                            ? "reading"
+                            : "readings"}
+                        </Badge>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon-sm"
+                        onClick={() => setPassionExpanded(!passionExpanded)}
+                        aria-expanded={passionExpanded}
+                        aria-label="Toggle Gospel Of The Passion readings"
+                      >
+                        <ChevronDown
+                          className={`size-5 text-slate-600 transition-transform ${
+                            passionExpanded ? "rotate-180" : ""
+                          }`}
+                        />
+                      </Button>
+                    </div>
+
+                    {passionExpanded && (
+                      <div className="mt-4 space-y-3 border-t pt-4">
+                        {mass.gospelOfThePassion.map((entry, idx) => (
+                          <div
+                            key={`passion-entry-${idx}`}
+                            onClick={() =>
+                              setSelectedPassionEntry(
+                                selectedPassionEntry === idx ? null : idx,
+                              )
+                            }
+                            className={`cursor-pointer bg-white/60 rounded-lg border p-3 sm:p-4 transition-colors ${
+                              selectedPassionEntry === idx
+                                ? "border-theme-gold/60 brightness-110"
+                                : "border-slate-200 hover:border-slate-400 hover:bg-white/80"
+                            }`}
+                            role="button"
+                            tabIndex={0}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter" || e.key === " ") {
+                                setSelectedPassionEntry(
+                                  selectedPassionEntry === idx ? null : idx,
+                                );
+                              }
+                            }}
+                            aria-pressed={selectedPassionEntry === idx}
+                          >
+                            <div className="mb-2 flex items-center gap-2">
+                              <Badge
+                                variant="secondary"
+                                className="bg-slate-200 text-slate-900"
+                              >
+                                {entry?.personality || "N"}
+                              </Badge>
+                              <span className="text-xs font-medium text-slate-600">
+                                Part {idx + 1}
+                              </span>
+                            </div>
+                            <p className="text-sm text-slate-800 whitespace-pre-line leading-relaxed">
+                              {entry?.body}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </section>
+                </React.Fragment>
+              );
+            }
+
+            return sectionElement;
           }
 
           return null;
         })}
       </div>
+
+      {Array.isArray(mass?.gospelOfThePassion) &&
+        mass.gospelOfThePassion.length > 0 &&
+        !sectionOrder.includes("acclamation") && (
+          <section className="rounded-2xl border border-white/50 bg-[#fff6] p-4 sm:p-5">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <h3 className="text-lg sm:text-xl font-semibold text-slate-900">
+                  Gospel Of The Passion
+                </h3>
+                <Badge
+                  variant="outline"
+                  className="border-slate-300 bg-slate-100 text-slate-800"
+                >
+                  {mass.gospelOfThePassion.length}{" "}
+                  {mass.gospelOfThePassion.length === 1
+                    ? "reading"
+                    : "readings"}
+                </Badge>
+              </div>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                onClick={() => setPassionExpanded(!passionExpanded)}
+                aria-expanded={passionExpanded}
+                aria-label="Toggle Gospel Of The Passion readings"
+              >
+                <ChevronDown
+                  className={`size-5 text-slate-600 transition-transform ${
+                    passionExpanded ? "rotate-180" : ""
+                  }`}
+                />
+              </Button>
+            </div>
+
+            {passionExpanded && (
+              <div className="mt-4 space-y-3 border-t pt-4">
+                {mass.gospelOfThePassion.map((entry, idx) => (
+                  <div
+                    key={`passion-entry-${idx}`}
+                    onClick={() =>
+                      setSelectedPassionEntry(
+                        selectedPassionEntry === idx ? null : idx,
+                      )
+                    }
+                    className={`cursor-pointer rounded-lg border p-3 sm:p-4 transition-colors ${
+                      selectedPassionEntry === idx
+                        ? "border-theme-gold/60 bg-theme-gold/15"
+                        : "border-slate-200 bg-white/60 hover:border-slate-400 hover:bg-white/80"
+                    }`}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        setSelectedPassionEntry(
+                          selectedPassionEntry === idx ? null : idx,
+                        );
+                      }
+                    }}
+                    aria-pressed={selectedPassionEntry === idx}
+                  >
+                    <div className="mb-2 flex items-center gap-2">
+                      <Badge
+                        variant="secondary"
+                        className="bg-slate-200 text-slate-900"
+                      >
+                        {entry?.personality || "N"}
+                      </Badge>
+                      <span className="text-xs font-medium text-slate-600">
+                        Part {idx + 1}
+                      </span>
+                    </div>
+                    <p className="text-sm text-slate-800 whitespace-pre-line leading-relaxed">
+                      {entry?.body}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+        )}
 
       <p className="text-center italic text-slate-700 mt-8 sm:mt-10">
         Have a blessed week.

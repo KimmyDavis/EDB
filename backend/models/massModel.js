@@ -69,6 +69,17 @@ const MassSchema = new mongoose.Schema(
         recited: Boolean,
       },
     },
+    gospelOfThePassion: {
+      type: [
+        {
+          personality: {
+            type: String,
+            enum: ["N", "J", "O", "C"],
+          },
+          body: String,
+        },
+      ],
+    },
     creed: {
       type: {
         recited: Boolean,
@@ -173,8 +184,22 @@ const MassSchema = new mongoose.Schema(
         sectionTitles: Boolean,
       },
     },
+    customOrder: {
+      type: [
+        {
+          section: String,
+          songId: {
+            type: mongoose.Types.ObjectId,
+            ref: "Song",
+          },
+          structure: [String],
+          sectionTitles: Boolean,
+        },
+      ],
+      required: false,
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const Mass = mongoose.model("Mass", MassSchema);
