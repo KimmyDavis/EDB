@@ -33,6 +33,8 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import Image from "next/image";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Plus } from "lucide-react";
+import GospelOfThePassion from "@/components/GospelOfThePassion";
 
 const starterMassTemplate = {
   acclamation: {
@@ -51,6 +53,7 @@ const starterMassTemplate = {
   gloria: {
     included: true,
   },
+  gospelOfThePassion: [],
 };
 
 const songFields = [
@@ -79,10 +82,23 @@ const normalizeSongRef = (value) => {
   return { ...value, songId: normalizedSongId };
 };
 
+const normalizePassionEntry = (entry) => ({
+  personality: ["N", "J", "O", "C"].includes(entry?.personality)
+    ? entry.personality
+    : "N",
+  body: typeof entry?.body === "string" ? entry.body : "",
+});
+
 const normalizeMassForForm = (rawMass = {}) => {
+  const passionEntriesSource =
+    rawMass?.gospelOfThePassion || rawMass?.readings || [];
+
   const normalizedMass = {
     ...starterMassTemplate,
     ...rawMass,
+    gospelOfThePassion: Array.isArray(passionEntriesSource)
+      ? passionEntriesSource.map(normalizePassionEntry)
+      : [],
     thanksgiving: rawMass?.thanksgiving ||
       rawMass?.thanksGiving || {
         ...(starterMassTemplate.thanksgiving || {}),
@@ -151,6 +167,7 @@ const MassEditor = ({ params }) => {
   const isEditingMass = massId !== "new";
   const [mass, setMass] = useState(starterMassTemplate);
   const [canSave, setCanSave] = useState(false);
+  const [gospelPassionOpen, setGospelPassionOpen] = useState(false);
 
   // handlers
   const handleUpdateMass = (field, value) => {
@@ -159,10 +176,18 @@ const MassEditor = ({ params }) => {
     setMass({ ...tmpMass });
   };
   const handleSubmit = async () => {
+    const normalizedPassionEntries = Array.isArray(mass?.gospelOfThePassion)
+      ? mass.gospelOfThePassion.map(normalizePassionEntry)
+      : [];
+    const payload = {
+      ...mass,
+      gospelOfThePassion: normalizedPassionEntries,
+    };
+
     if (isEditingMass) {
-      await editMass({ ...mass, id: massId });
+      await editMass({ ...payload, id: massId });
     } else {
-      await createMass(mass);
+      await createMass(payload);
     }
   };
 
@@ -532,6 +557,34 @@ const MassEditor = ({ params }) => {
                         </SelectGroup>
                       </SelectContent>
                     </Select>
+                  </Field>
+
+                  <Field>
+                    <FieldLabel>Gospel Of The Passion</FieldLabel>
+                    <FieldDescription>
+                      Add the proclamation entries that belong to the passion
+                      reading.
+                    </FieldDescription>
+                    <div className="flex flex-col items-center justify-between gap-3 rounded-xl border border-theme-gold/30 bg-white/40 p-4">
+                      <div className="">
+                        <p className="font-medium text-slate-900">
+                          {mass?.gospelOfThePassion?.length || 0} entries added
+                        </p>
+                        <p className="text-sm text-slate-700">
+                          Open the editor to add, delete, and rearrange
+                          sections.
+                        </p>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setGospelPassionOpen(true)}
+                        className="shrink-0"
+                      >
+                        <Plus className="size-4" />
+                        Edit entries
+                      </Button>
+                    </div>
                   </Field>
 
                   <Field>
@@ -996,6 +1049,15 @@ const MassEditor = ({ params }) => {
                 </div>
               </FieldGroup>
             </FieldSet>
+
+            <GospelOfThePassion
+              list={mass?.gospelOfThePassion || []}
+              setList={(nextList) =>
+                handleUpdateMass("gospelOfThePassion", nextList)
+              }
+              open={gospelPassionOpen}
+              onOpenChange={setGospelPassionOpen}
+            />
           </CardContent>
         </Card>
       </div>

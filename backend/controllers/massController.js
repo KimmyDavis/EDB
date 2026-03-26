@@ -1,5 +1,62 @@
 import { Mass } from "../models/massModel.js";
+import { Song } from "../models/songsModel.js";
 import mongoose from "mongoose";
+
+const SONG_SECTION_FIELDS = [
+  "entrance",
+  "kyrie",
+  "gloria",
+  "acclamation",
+  "creed",
+  "petition",
+  "LordsPrayer",
+  "offertory",
+  "sanctus",
+  "peace",
+  "agnusDei",
+  "holyCommunion",
+  "thanksgiving",
+  "exit",
+];
+
+const sanitizeSongSection = (section) => {
+  if (!section || typeof section !== "object" || Array.isArray(section)) {
+    return section;
+  }
+
+  const sanitized = { ...section };
+
+  if (typeof sanitized.songId === "string") {
+    const trimmedSongId = sanitized.songId.trim();
+    if (trimmedSongId === "") {
+      delete sanitized.songId;
+    } else if (!mongoose.Types.ObjectId.isValid(trimmedSongId)) {
+      throw new Error(`Invalid songId: ${trimmedSongId}`);
+    } else {
+      sanitized.songId = trimmedSongId;
+    }
+  }
+
+  return sanitized;
+};
+
+const sanitizeMassPayload = (payload) => {
+  const sanitized = { ...payload };
+
+  SONG_SECTION_FIELDS.forEach((field) => {
+    if (field in sanitized) {
+      sanitized[field] = sanitizeSongSection(sanitized[field]);
+    }
+  });
+
+  if (Array.isArray(sanitized.customOrder)) {
+    sanitized.customOrder = sanitized.customOrder.map((section) =>
+      sanitizeSongSection(section),
+    );
+  }
+
+  return sanitized;
+};
 
 /*
 createMass
@@ -15,7 +72,46 @@ const createMass = async (req, res) => {
       .status(400)
       .json({ message: "title and date fields are required." });
   }
-  const newMass = await Mass.create(req.body);
+  const allowedFields = [
+    "title",
+    "date",
+    "code",
+    "notes",
+    "psalmResponse",
+    "entrance",
+    "kyrie",
+    "gloria",
+    "acclamation",
+    "gospelOfThePassion",
+    "creed",
+    "petition",
+    "LordsPrayer",
+    "offertory",
+    "sanctus",
+    "peace",
+    "agnusDei",
+    "holyCommunion",
+    "thanksgiving",
+    "exit",
+    "customOrder",
+  ];
+  const massData = {};
+
+  // Only include allowed fields from req.body
+  allowedFields.forEach((field) => {
+    if (req.body[field] !== undefined) {
+      massData[field] = req.body[field];
+    }
+  });
+
+  let sanitizedMassData;
+  try {
+    sanitizedMassData = sanitizeMassPayload(massData);
+  } catch (error) {
+    return res.status(400).json({ message: error.message });
+  }
+
+  const newMass = await Mass.create(sanitizedMassData);
   if (!newMass)
     return res.status(500).json({
       message: "Failed to add Mass to the database. Check your entries.",
@@ -63,6 +159,14 @@ const queryMass = async (req, res) => {
         .status(404)
         .json({ message: "No mass matches the provided id." });
     }
+    if (mass.customOrder?.length) {
+      for (let section of mass.customOrder) {
+        if (section.songId) {
+          const song = await Song.findById(section.songId);
+          section = { section, ...song };
+        }
+      }
+    }
     return res.status(200).json({ mass: [mass] });
   }
   const query = {};
@@ -92,6 +196,14 @@ const queryMass = async (req, res) => {
   if (!mass?.length) {
     return res.status(404).json({ message: "No mass matches your query." });
   }
+  if (mass.customOrder?.length) {
+    for (let section of mass.customOrder) {
+      if (section.songId) {
+        const song = await Song.findById(section.songId);
+        section = { section, ...song };
+      }
+    }
+  }
   res.status(200).json({ mass });
 };
 
@@ -118,6 +230,7 @@ const editMass = async (req, res) => {
     "kyrie",
     "gloria",
     "acclamation",
+    "gospelOfThePassion",
     "creed",
     "petition",
     "LordsPrayer",
@@ -128,6 +241,7 @@ const editMass = async (req, res) => {
     "holyCommunion",
     "thanksgiving",
     "exit",
+    // "customOrder",
   ];
   const updates = {};
 
@@ -143,7 +257,18 @@ const editMass = async (req, res) => {
       .status(400)
       .json({ message: "Please provide at least one field to edit." });
   }
-  const updated = await Mass.findByIdAndUpdate(id, updates, { new: true });
+
+  let sanitizedUpdates;
+  try {
+    sanitizedUpdates = sanitizeMassPayload(updates);
+  } catch (error) {
+    return res.status(400).json({ message: error.message });
+  }
+
+  const updated = await Mass.findByIdAndUpdate(id, sanitizedUpdates, {
+    new: true,
+    runValidators: true,
+  });
   if (!updated) {
     return res
       .status(404)
