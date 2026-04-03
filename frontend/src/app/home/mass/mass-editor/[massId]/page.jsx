@@ -73,6 +73,11 @@ const songFields = [
   "exit",
 ];
 
+const NO_SONG_VALUE = "__none__";
+
+const normalizeSelectedSongId = (songId) =>
+  songId === NO_SONG_VALUE ? "" : songId;
+
 const normalizeSongRef = (value) => {
   if (!value || typeof value !== "object") return value;
   const normalizedSongId =
@@ -370,10 +375,10 @@ const MassEditor = ({ params }) => {
                       onValueChange={(songId) =>
                         handleUpdateMass("entrance", {
                           ...mass?.entrance,
-                          songId,
+                          songId: normalizeSelectedSongId(songId),
                         })
                       }
-                      value={mass?.entrance?.songId || ""}
+                      value={mass?.entrance?.songId || NO_SONG_VALUE}
                       id="entrance"
                     >
                       <SelectTrigger className="w-full">
@@ -385,6 +390,7 @@ const MassEditor = ({ params }) => {
                       <SelectContent>
                         <SelectGroup>
                           <SelectLabel>Entrance songs</SelectLabel>
+                          <SelectItem value={NO_SONG_VALUE}>None</SelectItem>
                           {songs
                             ?.filter((s) => s.sections?.includes("entrance"))
                             ?.map((song, i) => {
@@ -406,9 +412,12 @@ const MassEditor = ({ params }) => {
                     <FieldLabel htmlFor="kyrie">Kyrie</FieldLabel>
                     <Select
                       onValueChange={(songId) =>
-                        handleUpdateMass("kyrie", { ...mass?.kyrie, songId })
+                        handleUpdateMass("kyrie", {
+                          ...mass?.kyrie,
+                          songId: normalizeSelectedSongId(songId),
+                        })
                       }
-                      value={mass?.kyrie?.songId || ""}
+                      value={mass?.kyrie?.songId || NO_SONG_VALUE}
                       id="kyrie"
                     >
                       <SelectTrigger className="w-full">
@@ -420,6 +429,7 @@ const MassEditor = ({ params }) => {
                       <SelectContent>
                         <SelectGroup>
                           <SelectLabel>Kyrie songs</SelectLabel>
+                          <SelectItem value={NO_SONG_VALUE}>None</SelectItem>
                           {songs
                             ?.filter((s) => s.sections?.includes("kyrie"))
                             ?.map((song, i) => {
@@ -473,10 +483,10 @@ const MassEditor = ({ params }) => {
                         onValueChange={(songId) =>
                           handleUpdateMass("gloria", {
                             ...mass?.gloria,
-                            songId,
+                            songId: normalizeSelectedSongId(songId),
                           })
                         }
-                        value={mass?.gloria?.songId || ""}
+                        value={mass?.gloria?.songId || NO_SONG_VALUE}
                         id="gloria"
                       >
                         <SelectTrigger className="w-full">
@@ -488,6 +498,7 @@ const MassEditor = ({ params }) => {
                         <SelectContent>
                           <SelectGroup>
                             <SelectLabel>Gloria songs</SelectLabel>
+                            <SelectItem value={NO_SONG_VALUE}>None</SelectItem>
                             {songs
                               ?.filter((s) => s.sections?.includes("gloria"))
                               ?.map((song, i) => {
@@ -527,10 +538,10 @@ const MassEditor = ({ params }) => {
                       onValueChange={(songId) =>
                         handleUpdateMass("acclamation", {
                           ...mass?.acclamation,
-                          songId,
+                          songId: normalizeSelectedSongId(songId),
                         })
                       }
-                      value={mass?.acclamation?.songId || ""}
+                      value={mass?.acclamation?.songId || NO_SONG_VALUE}
                       id="acclamation"
                     >
                       <SelectTrigger className="w-full">
@@ -542,6 +553,7 @@ const MassEditor = ({ params }) => {
                       <SelectContent>
                         <SelectGroup>
                           <SelectLabel>Gospel Acclamation songs</SelectLabel>
+                          <SelectItem value={NO_SONG_VALUE}>None</SelectItem>
                           {songs
                             ?.filter((s) => s.sections?.includes("acclamation"))
                             ?.map((song, i) => {
@@ -624,9 +636,12 @@ const MassEditor = ({ params }) => {
                     {mass?.creed?.included && !mass?.creed?.recited && (
                       <Select
                         onValueChange={(songId) =>
-                          handleUpdateMass("creed", { ...mass?.creed, songId })
+                          handleUpdateMass("creed", {
+                            ...mass?.creed,
+                            songId: normalizeSelectedSongId(songId),
+                          })
                         }
-                        value={mass?.creed?.songId || ""}
+                        value={mass?.creed?.songId || NO_SONG_VALUE}
                         id="creed"
                       >
                         <SelectTrigger className="w-full">
@@ -638,6 +653,7 @@ const MassEditor = ({ params }) => {
                         <SelectContent>
                           <SelectGroup>
                             <SelectLabel>Creed songs</SelectLabel>
+                            <SelectItem value={NO_SONG_VALUE}>None</SelectItem>
                             {songs
                               ?.filter((s) => s.sections?.includes("creed"))
                               ?.map((song, i) => {
@@ -662,10 +678,10 @@ const MassEditor = ({ params }) => {
                       onValueChange={(songId) =>
                         handleUpdateMass("petition", {
                           ...mass?.petition,
-                          songId,
+                          songId: normalizeSelectedSongId(songId),
                         })
                       }
-                      value={mass?.petition?.songId || ""}
+                      value={mass?.petition?.songId || NO_SONG_VALUE}
                       id="petition"
                     >
                       <SelectTrigger className="w-full">
@@ -677,6 +693,7 @@ const MassEditor = ({ params }) => {
                       <SelectContent>
                         <SelectGroup>
                           <SelectLabel>Petition songs</SelectLabel>
+                          <SelectItem value={NO_SONG_VALUE}>None</SelectItem>
                           {songs
                             ?.filter((s) => s.sections?.includes("petition"))
                             ?.map((song, i) => {
@@ -716,10 +733,10 @@ const MassEditor = ({ params }) => {
                         onValueChange={(songId) =>
                           handleUpdateMass("LordsPrayer", {
                             ...mass?.LordsPrayer,
-                            songId,
+                            songId: normalizeSelectedSongId(songId),
                           })
                         }
-                        value={mass?.LordsPrayer?.songId || ""}
+                        value={mass?.LordsPrayer?.songId || NO_SONG_VALUE}
                         id="LordsPrayer"
                       >
                         <SelectTrigger className="w-full">
@@ -731,6 +748,7 @@ const MassEditor = ({ params }) => {
                         <SelectContent>
                           <SelectGroup>
                             <SelectLabel>Lord's Prayer songs</SelectLabel>
+                            <SelectItem value={NO_SONG_VALUE}>None</SelectItem>
                             {songs
                               ?.filter((s) =>
                                 s.sections?.some((sect) =>
@@ -761,10 +779,10 @@ const MassEditor = ({ params }) => {
                       onValueChange={(songId) =>
                         handleUpdateMass("offertory", {
                           ...mass?.offertory,
-                          songId,
+                          songId: normalizeSelectedSongId(songId),
                         })
                       }
-                      value={mass?.offertory?.songId || ""}
+                      value={mass?.offertory?.songId || NO_SONG_VALUE}
                       id="offertory"
                     >
                       <SelectTrigger className="w-full">
@@ -776,6 +794,7 @@ const MassEditor = ({ params }) => {
                       <SelectContent>
                         <SelectGroup>
                           <SelectLabel>Offertory songs</SelectLabel>
+                          <SelectItem value={NO_SONG_VALUE}>None</SelectItem>
                           {songs
                             ?.filter((s) => s.sections?.includes("offertory"))
                             ?.map((song, i) => {
@@ -798,10 +817,10 @@ const MassEditor = ({ params }) => {
                       onValueChange={(songId) =>
                         handleUpdateMass("sanctus", {
                           ...mass?.sanctus,
-                          songId,
+                          songId: normalizeSelectedSongId(songId),
                         })
                       }
-                      value={mass?.sanctus?.songId || ""}
+                      value={mass?.sanctus?.songId || NO_SONG_VALUE}
                       id="sanctus"
                     >
                       <SelectTrigger className="w-full">
@@ -813,6 +832,7 @@ const MassEditor = ({ params }) => {
                       <SelectContent>
                         <SelectGroup>
                           <SelectLabel>Sanctus songs</SelectLabel>
+                          <SelectItem value={NO_SONG_VALUE}>None</SelectItem>
                           {songs
                             ?.filter((s) => s.sections?.includes("sanctus"))
                             ?.map((song, i) => {
@@ -834,9 +854,12 @@ const MassEditor = ({ params }) => {
                     <FieldLabel htmlFor="peace">Peace</FieldLabel>
                     <Select
                       onValueChange={(songId) =>
-                        handleUpdateMass("peace", { ...mass?.peace, songId })
+                        handleUpdateMass("peace", {
+                          ...mass?.peace,
+                          songId: normalizeSelectedSongId(songId),
+                        })
                       }
-                      value={mass?.peace?.songId || ""}
+                      value={mass?.peace?.songId || NO_SONG_VALUE}
                       id="peace"
                     >
                       <SelectTrigger className="w-full">
@@ -848,6 +871,7 @@ const MassEditor = ({ params }) => {
                       <SelectContent>
                         <SelectGroup>
                           <SelectLabel>Peace songs</SelectLabel>
+                          <SelectItem value={NO_SONG_VALUE}>None</SelectItem>
                           {songs
                             ?.filter((s) => s.sections?.includes("peace"))
                             ?.map((song, i) => {
@@ -868,10 +892,10 @@ const MassEditor = ({ params }) => {
                       onValueChange={(songId) =>
                         handleUpdateMass("agnusDei", {
                           ...mass?.agnusDei,
-                          songId,
+                          songId: normalizeSelectedSongId(songId),
                         })
                       }
-                      value={mass?.agnusDei?.songId || ""}
+                      value={mass?.agnusDei?.songId || NO_SONG_VALUE}
                       id="agnusDei"
                     >
                       <SelectTrigger className="w-full">
@@ -883,6 +907,7 @@ const MassEditor = ({ params }) => {
                       <SelectContent>
                         <SelectGroup>
                           <SelectLabel>Agnus Dei songs</SelectLabel>
+                          <SelectItem value={NO_SONG_VALUE}>None</SelectItem>
                           {songs
                             ?.filter((s) =>
                               s.sections?.some((sect) =>
@@ -912,10 +937,10 @@ const MassEditor = ({ params }) => {
                       onValueChange={(songId) =>
                         handleUpdateMass("holyCommunion", {
                           ...mass?.holyCommunion,
-                          songId,
+                          songId: normalizeSelectedSongId(songId),
                         })
                       }
-                      value={mass?.holyCommunion?.songId || ""}
+                      value={mass?.holyCommunion?.songId || NO_SONG_VALUE}
                       id="holyCommunion"
                     >
                       <SelectTrigger className="w-full">
@@ -927,6 +952,7 @@ const MassEditor = ({ params }) => {
                       <SelectContent>
                         <SelectGroup>
                           <SelectLabel>Holy Communion songs</SelectLabel>
+                          <SelectItem value={NO_SONG_VALUE}>None</SelectItem>
                           {songs
                             ?.filter((s) =>
                               s.sections?.some((sect) =>
@@ -972,10 +998,10 @@ const MassEditor = ({ params }) => {
                         onValueChange={(songId) =>
                           handleUpdateMass("thanksgiving", {
                             ...mass?.thanksgiving,
-                            songId,
+                            songId: normalizeSelectedSongId(songId),
                           })
                         }
-                        value={mass?.thanksgiving?.songId || ""}
+                        value={mass?.thanksgiving?.songId || NO_SONG_VALUE}
                         id="thanksgiving"
                       >
                         <SelectTrigger className="w-full">
@@ -987,6 +1013,7 @@ const MassEditor = ({ params }) => {
                         <SelectContent>
                           <SelectGroup>
                             <SelectLabel>Thanksgiving songs</SelectLabel>
+                            <SelectItem value={NO_SONG_VALUE}>None</SelectItem>
                             {songs
                               ?.filter((s) =>
                                 s.sections?.includes("thanksgiving"),
@@ -1011,9 +1038,12 @@ const MassEditor = ({ params }) => {
                     <FieldLabel htmlFor="exit">Exit</FieldLabel>
                     <Select
                       onValueChange={(songId) =>
-                        handleUpdateMass("exit", { ...mass?.exit, songId })
+                        handleUpdateMass("exit", {
+                          ...mass?.exit,
+                          songId: normalizeSelectedSongId(songId),
+                        })
                       }
-                      value={mass?.exit?.songId || ""}
+                      value={mass?.exit?.songId || NO_SONG_VALUE}
                       id="exit"
                     >
                       <SelectTrigger className="w-full">
@@ -1022,6 +1052,7 @@ const MassEditor = ({ params }) => {
                       <SelectContent>
                         <SelectGroup>
                           <SelectLabel>Exit songs</SelectLabel>
+                          <SelectItem value={NO_SONG_VALUE}>None</SelectItem>
                           {songs
                             ?.filter((s) => s.sections?.includes("exit"))
                             ?.map((song, i) => {
