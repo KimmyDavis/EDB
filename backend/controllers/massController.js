@@ -1,5 +1,6 @@
 import { Mass } from "../models/massModel.js";
 import { Song } from "../models/songsModel.js";
+import { orderOfMass, fullOrderOfMass } from "../utils/orderOfMass.js";
 import mongoose from "mongoose";
 
 const SONG_SECTION_FIELDS = [
@@ -302,4 +303,65 @@ const deleteMass = async (req, res) => {
   res.status(200).json({ message: "Mass successfully deleted." });
 };
 
-export default { createMass, queryMass, editMass, deleteMass };
+/*
+getOrderOfMass
+method: GET
+does: serves the order of Mass payload
+receives: optional language query param
+returns: the order of Mass object or a single language branch
+*/
+const getOrderOfMass = async (req, res) => {
+  const { language } = req.query;
+
+  const resolvePath = (obj, path = []) => {
+    if (!obj || !Array.isArray(path) || !path.length) return null;
+    return path.reduce(
+      (acc, currentKey) =>
+        acc && typeof acc === "object" ? acc[currentKey] : null,
+      obj,
+    );
+  };
+
+  const enrichLanguageOrder = (languageOrder) => {
+    const resolvedFullOrder = fullOrderOfMass.map((entry) => ({
+      ...entry,
+      detail: entry.detailPath
+        ? resolvePath(languageOrder, entry.detailPath)
+        : null,
+    }));
+
+    return {
+      ...languageOrder,
+      fullOrderOfMass: resolvedFullOrder,
+    };
+  };
+
+  if (!language) {
+    const byLanguage = Object.keys(orderOfMass).reduce((acc, languageKey) => {
+      acc[languageKey] = enrichLanguageOrder(orderOfMass[languageKey]);
+      return acc;
+    }, {});
+
+    return res.status(200).json({
+      ...byLanguage,
+      fullOrderOfMass,
+    });
+  }
+
+  const normalizedLanguage = String(language).toLowerCase();
+  const selectedOrder = orderOfMass[normalizedLanguage];
+
+  if (!selectedOrder) {
+    return res.status(404).json({
+      message: `Unsupported language: ${language}.`,
+      availableLanguages: Object.keys(orderOfMass),
+    });
+  }
+
+  return res.status(200).json({
+    language: normalizedLanguage,
+    orderOfMass: enrichLanguageOrder(selectedOrder),
+  });
+};
+
+export default { createMass, queryMass, editMass, deleteMass, getOrderOfMass };

@@ -36,6 +36,15 @@ export const massApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: () => [{ type: "Mass", id: "MASS_LIST" }],
     }),
+    getOrderOfMass: builder.query({
+      query: ({ language } = {}) => ({
+        url: `/mass/order-of-mass${
+          language ? `?language=${encodeURIComponent(language)}` : ""
+        }`,
+        method: "GET",
+      }),
+      keepUnusedDataFor: 24 * 60 * 60,
+    }),
   }),
 });
 
@@ -55,4 +64,5 @@ export const {
   useQueryMassQuery,
   useEditMassMutation,
   useDeleteMassMutation,
+  useGetOrderOfMassQuery,
 } = massApiSlice;

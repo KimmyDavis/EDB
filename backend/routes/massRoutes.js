@@ -3,6 +3,8 @@ import massController from "../controllers/massController.js";
 
 const router = express.Router();
 
+router.route("/order-of-mass").get(massController.getOrderOfMass);
+
 router
   .route("/")
   .get(massController.queryMass)
