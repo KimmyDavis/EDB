@@ -135,7 +135,7 @@ export default function RequireAuth({ children }) {
 
   if (
     isRedirectingUnauthed ||
-    isRedirectingIncompleteProfile ||
+    // isRedirectingIncompleteProfile ||
     isRedirectingAuthedLogin
   ) {
     return (
