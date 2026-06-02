@@ -382,7 +382,7 @@ export default function Home() {
                     whileHover={{ scale: 1.02 }}
                   >
                     <Card
-                      onClick={() => router.replace(eventUrl)}
+                      onClick={() => router.push(eventUrl)}
                       className="bg-[#fff5] border-slate-200/50 hover:border-theme-gold/50 hover:shadow-lg transition-all p-5 h-full flex flex-col"
                     >
                       <div className="mb-4">
