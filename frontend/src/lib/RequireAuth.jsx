@@ -30,17 +30,16 @@ export default function RequireAuth({ children }) {
     hasActiveSession && isEmailVerified && !isAccountVerified && !isPublicRoute;
 
   useEffect(() => {
+    console.log(pathname);
+  }, [pathname]);
+
+  useEffect(() => {
     if (isPending) return;
 
     if (!session) {
       if (!isPublicRoute) {
         router.replace("/");
       }
-      return;
-    }
-
-    if (sessionExpired) {
-      router.replace("/");
       return;
     }
 
@@ -54,7 +53,12 @@ export default function RequireAuth({ children }) {
       return;
     }
 
-    if (!hasCompleteProfile && !isEditProfileRoute && isEventsRoute) {
+    if (sessionExpired) {
+      router.replace("/");
+      return;
+    }
+
+    if (!hasCompleteProfile && isEventsRoute) {
       toast.info("Your account is missing some crucial info.", {
         position: "top-center",
       });
@@ -76,6 +80,7 @@ export default function RequireAuth({ children }) {
     isPublicRoute,
     isEditProfileRoute,
     router,
+    isEventsRoute,
   ]);
 
   const isRedirectingUnauthed = !isPending && !session && !isPublicRoute;

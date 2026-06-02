@@ -15,6 +15,7 @@ import { eventsApiSlice } from "@/features/events/eventsApiSlice";
 import { Trash2, Edit, Plus, Eye } from "lucide-react";
 import { authClient } from "@/lib/authClient";
 import { canAccessRole } from "@/lib/roles";
+import { hasRequiredProfileInfo } from "@/constants/required-profile-info";
 
 const EventsPage = () => {
   const router = useRouter();
@@ -25,6 +26,7 @@ const EventsPage = () => {
   const { user } = authData || {};
   const isAdmin = user?.role === "admin";
   const canManageEvents = canAccessRole(user?.role, "media");
+  const hasCompleteProfile = hasRequiredProfileInfo(user);
 
   // join/leave mutation
   const [joinOrLeaveEvent] = eventsApiSlice.useJoinOrLeaveEventMutation();
@@ -112,7 +114,7 @@ const EventsPage = () => {
     if (event.maxParticipants) {
       if (participantCount(event) >= event.maxParticipants) return false;
     }
-    return true;
+    if (!hasCompleteProfile) return true;
   };
 
   const handleDelete = async (id) => {
