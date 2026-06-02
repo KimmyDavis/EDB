@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
+import EventShare from "@/components/eventsComponents/EventShare";
 import {
   Card,
   CardContent,
@@ -15,6 +16,7 @@ import { eventsApiSlice } from "@/features/events/eventsApiSlice";
 import { Trash2, Edit, Plus, Eye } from "lucide-react";
 import { authClient } from "@/lib/authClient";
 import { canAccessRole } from "@/lib/roles";
+import { hasRequiredProfileInfo } from "@/constants/required-profile-info";
 
 const EventsPage = () => {
   const router = useRouter();
@@ -25,6 +27,7 @@ const EventsPage = () => {
   const { user } = authData || {};
   const isAdmin = user?.role === "admin";
   const canManageEvents = canAccessRole(user?.role, "media");
+  const hasCompleteProfile = hasRequiredProfileInfo(user);
 
   // join/leave mutation
   const [joinOrLeaveEvent] = eventsApiSlice.useJoinOrLeaveEventMutation();
@@ -112,7 +115,7 @@ const EventsPage = () => {
     if (event.maxParticipants) {
       if (participantCount(event) >= event.maxParticipants) return false;
     }
-    return true;
+    if (!hasCompleteProfile) return true;
   };
 
   const handleDelete = async (id) => {
@@ -307,7 +310,7 @@ const EventsPage = () => {
                     </div>
                   </CardHeader>
 
-                  <CardContent className="space-y-3">
+                  <CardContent className="space-y-3 flex flex-col h-full">
                     {/* Date */}
                     <div>
                       <p className="text-xs font-semibold text-slate-700">
@@ -342,16 +345,6 @@ const EventsPage = () => {
                           </p>
                         </div>
                       )}
-                      {event.maxParticipants && (
-                        <div>
-                          <p className="text-xs font-semibold text-slate-700">
-                            Max Participants
-                          </p>
-                          <p className="text-sm text-slate-800">
-                            {event.maxParticipants}
-                          </p>
-                        </div>
-                      )}
                       {event.deadline && (
                         <div>
                           <p className="text-xs font-semibold text-slate-700">
@@ -362,7 +355,22 @@ const EventsPage = () => {
                           </p>
                         </div>
                       )}
+                      {event.maxParticipants && (
+                        <div>
+                          <p className="text-xs font-semibold text-slate-700">
+                            Max Participants
+                          </p>
+                          <p className="text-sm text-slate-800">
+                            {event.maxParticipants}
+                          </p>
+                        </div>
+                      )}
                     </div>
+                    <EventShare
+                      eventId={event._id || event.id}
+                      iconOnly={true}
+                      className="ml-auto mt-auto"
+                    />
                   </CardContent>
 
                   <CardFooter className="gap-2 w-full justify-end mt-auto">
