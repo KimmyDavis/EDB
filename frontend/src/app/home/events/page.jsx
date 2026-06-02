@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
+import EventShare from "@/components/eventsComponents/EventShare";
 import {
   Card,
   CardContent,
@@ -309,7 +310,7 @@ const EventsPage = () => {
                     </div>
                   </CardHeader>
 
-                  <CardContent className="space-y-3">
+                  <CardContent className="space-y-3 flex flex-col h-full">
                     {/* Date */}
                     <div>
                       <p className="text-xs font-semibold text-slate-700">
@@ -344,16 +345,6 @@ const EventsPage = () => {
                           </p>
                         </div>
                       )}
-                      {event.maxParticipants && (
-                        <div>
-                          <p className="text-xs font-semibold text-slate-700">
-                            Max Participants
-                          </p>
-                          <p className="text-sm text-slate-800">
-                            {event.maxParticipants}
-                          </p>
-                        </div>
-                      )}
                       {event.deadline && (
                         <div>
                           <p className="text-xs font-semibold text-slate-700">
@@ -364,7 +355,22 @@ const EventsPage = () => {
                           </p>
                         </div>
                       )}
+                      {event.maxParticipants && (
+                        <div>
+                          <p className="text-xs font-semibold text-slate-700">
+                            Max Participants
+                          </p>
+                          <p className="text-sm text-slate-800">
+                            {event.maxParticipants}
+                          </p>
+                        </div>
+                      )}
                     </div>
+                    <EventShare
+                      eventId={event._id || event.id}
+                      iconOnly={true}
+                      className="ml-auto mt-auto"
+                    />
                   </CardContent>
 
                   <CardFooter className="gap-2 w-full justify-end mt-auto">

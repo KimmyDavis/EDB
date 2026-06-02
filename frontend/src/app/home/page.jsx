@@ -10,8 +10,10 @@ import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+  const router = useRouter();
   // Fetch masses and events
   const {
     data: massData,
@@ -367,55 +369,64 @@ export default function Home() {
             </Card>
           ) : upcomingEvents.length > 0 ? (
             <div className="grid gap-4 md:grid-cols-3">
-              {upcomingEvents.map((event, index) => (
-                <motion.div
-                  key={event._id}
-                  variants={itemVariants}
-                  custom={index}
-                  whileHover={{ scale: 1.02 }}
-                >
-                  <Card className="bg-[#fff5] border-slate-200/50 hover:border-theme-gold/50 hover:shadow-lg transition-all p-5 h-full flex flex-col">
-                    <div className="mb-4">
-                      <p className="text-xs font-semibold text-theme-gold uppercase tracking-wider">
-                        {formatDate(event.date)}
-                      </p>
-                      <h3 className="text-base font-bold text-slate-900 mt-2 line-clamp-2">
-                        {event.title}
-                      </h3>
-                    </div>
-
-                    <div className="space-y-2 text-xs text-slate-600 grow">
-                      <div className="flex items-center gap-2">
-                        <Calendar className="w-3.5 h-3.5 text-theme-gold/70 shrink-0" />
-                        <span>{formatDate(event.date)}</span>
+              {upcomingEvents.map((event, index) => {
+                const eventUrl =
+                  typeof window !== "undefined"
+                    ? `${window.location.origin}/home/events/event/${event._id}`
+                    : `/`;
+                return (
+                  <motion.div
+                    key={event._id}
+                    variants={itemVariants}
+                    custom={index}
+                    whileHover={{ scale: 1.02 }}
+                  >
+                    <Card
+                      onClick={() => router.replace(eventUrl)}
+                      className="bg-[#fff5] border-slate-200/50 hover:border-theme-gold/50 hover:shadow-lg transition-all p-5 h-full flex flex-col"
+                    >
+                      <div className="mb-4">
+                        <p className="text-xs font-semibold text-theme-gold uppercase tracking-wider">
+                          {formatDate(event.date)}
+                        </p>
+                        <h3 className="text-base font-bold text-slate-900 mt-2 line-clamp-2">
+                          {event.title}
+                        </h3>
                       </div>
 
-                      {event.venue && (
+                      <div className="space-y-2 text-xs text-slate-600 grow">
                         <div className="flex items-center gap-2">
-                          <MapPin className="w-3.5 h-3.5 text-theme-gold/70 shrink-0" />
-                          <span className="truncate">{event.venue}</span>
+                          <Calendar className="w-3.5 h-3.5 text-theme-gold/70 shrink-0" />
+                          <span>{formatDate(event.date)}</span>
                         </div>
-                      )}
 
-                      {event.deadline && (
-                        <div className="flex items-center gap-2 pt-1 border-t border-slate-200/50">
-                          <Clock className="w-3.5 h-3.5 text-orange-500 shrink-0" />
-                          <span className="text-orange-600 font-semibold">
-                            Deadline: {formatDate(event.deadline)}
-                          </span>
-                        </div>
-                      )}
-                    </div>
+                        {event.venue && (
+                          <div className="flex items-center gap-2">
+                            <MapPin className="w-3.5 h-3.5 text-theme-gold/70 shrink-0" />
+                            <span className="truncate">{event.venue}</span>
+                          </div>
+                        )}
 
-                    <motion.div
-                      initial={{ scaleX: 0 }}
-                      animate={{ scaleX: 1 }}
-                      transition={{ delay: 0.2 + index * 0.1, duration: 0.4 }}
-                      className="mt-4 h-0.5 bg-linear-to-r from-theme-gold/20 to-transparent origin-left"
-                    />
-                  </Card>
-                </motion.div>
-              ))}
+                        {event.deadline && (
+                          <div className="flex items-center gap-2 pt-1 border-t border-slate-200/50">
+                            <Clock className="w-3.5 h-3.5 text-orange-500 shrink-0" />
+                            <span className="text-orange-600 font-semibold">
+                              Deadline: {formatDate(event.deadline)}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+
+                      <motion.div
+                        initial={{ scaleX: 0 }}
+                        animate={{ scaleX: 1 }}
+                        transition={{ delay: 0.2 + index * 0.1, duration: 0.4 }}
+                        className="mt-4 h-0.5 bg-linear-to-r from-theme-gold/20 to-transparent origin-left"
+                      />
+                    </Card>
+                  </motion.div>
+                );
+              })}
             </div>
           ) : (
             <Card className="bg-slate-50/50 border-slate-200 p-6">
