@@ -91,7 +91,9 @@ const EventDetailsPage = ({ params }) => {
     if (event.maxParticipants) {
       if (participantCount(event) >= event.maxParticipants) return false;
     }
-    if (!hasCompleteProfile) return true;
+
+    if (!hasCompleteProfile) return false;
+    return true;
   };
 
   if (isLoading) {
