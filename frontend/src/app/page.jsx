@@ -6,12 +6,14 @@ import { Label } from "@/components/ui/label";
 import { setCredentials } from "@/features/auth/authSlice";
 import { authClient } from "@/lib/authClient";
 import { Eye, EyeOff } from "lucide-react";
+import { FcGoogle } from "react-icons/fc";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React from "react";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { toast } from "sonner";
+import { z } from "zod";
 
 const Page = () => {
   const dispatch = useDispatch();
@@ -26,7 +28,7 @@ const Page = () => {
     e.preventDefault();
 
     const trimmedIdentifier = identifier.trim();
-    const isEmail = trimmedIdentifier.includes("@");
+    const isEmail = z.email().safeParse(trimmedIdentifier).success;
 
     const authCallbacks = {
       onRequest: () => {
@@ -35,6 +37,7 @@ const Page = () => {
       onSuccess: async (ctx) => {
         setIsSubmitting(false);
         const { data: jwtData } = await authClient.token();
+        console.log(ctx, jwtData);
         if (jwtData)
           dispatch(
             setCredentials({
@@ -42,7 +45,8 @@ const Page = () => {
               sessionToken: ctx.data.token,
             }),
           );
-        router.push("/home");
+        await authClient.getSession();
+        document.location = "./home";
       },
       onError: (ctx) => {
         setIsSubmitting(false);
@@ -70,6 +74,14 @@ const Page = () => {
       },
       authCallbacks,
     );
+    return;
+  };
+
+  const signOnGoogle = async () => {
+    const data = await authClient.signIn.social({
+      provider: "google",
+    });
+    console.log(data);
   };
   return (
     <div className="relative bg-theme-gold w-full min-h-screen flex items-center justify-center">
@@ -161,11 +173,21 @@ const Page = () => {
           <Button
             type="submit"
             disabled={isSubmitting}
-            className="w-max px-10 py-2 mx-auto rounded-none"
+            className="w-max px-10 py-2 mx-auto rounded-none active:brightness-150"
           >
             {isSubmitting ? "Authenticating..." : "Login"}
           </Button>
         </form>
+        <div className="social">
+          <div className="google w-full flex flex-row justify-center">
+            <Button
+              onClick={signOnGoogle}
+              className="bg-theme-gold/90 my-5 py-5 px-6 active:brightness-150"
+            >
+              <FcGoogle className="scale-200 m-3" /> continue with google
+            </Button>
+          </div>
+        </div>
         <div className="no-account text-center mt-8">
           or{" "}
           <span

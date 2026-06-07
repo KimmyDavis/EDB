@@ -8,7 +8,6 @@ import {
 } from "@/components/ui/card";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -16,12 +15,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
 import { authClient } from "@/lib/authClient";
 import { User } from "lucide-react";
 import { User2 } from "lucide-react";
-import { PersonStanding } from "lucide-react";
-import { Magnet } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 import { useEffect } from "react";
@@ -29,12 +25,11 @@ import Validator from "validatorjs";
 import { getNames } from "country-list";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { hasRequiredProfileInfo } from "@/constants/required-profile-info";
 
 const ProfileForm = () => {
   const router = useRouter();
   const { data, error, isPending } = authClient.useSession();
-  const { session, user } = data || {};
+  const { user } = data || {};
 
   const countries = getNames();
 
@@ -56,16 +51,7 @@ const ProfileForm = () => {
   const [errors, setErrors] = useState({});
   const [isUpdating, setIsUpdating] = useState(false);
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
-  const [isEditEnabled, setIsEditEnabled] = useState(false);
   const [showPolicyNotice, setShowPolicyNotice] = useState(false);
-  const shouldForceEditMode = !!user && !hasRequiredProfileInfo(user);
-  const canEditProfile = shouldForceEditMode || isEditEnabled;
-
-  useEffect(() => {
-    if (shouldForceEditMode) {
-      setIsEditEnabled(true);
-    }
-  }, [shouldForceEditMode]);
 
   useEffect(() => {
     if (!user) return;
@@ -117,7 +103,7 @@ const ProfileForm = () => {
         if (isNaN(day) || isNaN(month)) return false;
         if (month < 1 || month > 12) return false;
 
-        const daysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+        const daysInMonth = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
         return day >= 1 && day <= daysInMonth[month - 1];
       },
@@ -130,12 +116,12 @@ const ProfileForm = () => {
       email: "required|email",
       username: "required|string|min:3",
       phone: "required|regex:/^\\+?\\d{9,15}$/",
-      matricule: "required|string|min:5",
+      matricule: "string|min:5",
       passport: "required|string|min:5",
-      algerianId: "required|string|min:6",
+      algerianId: "string|min:6",
       country: "required|string",
-      birthdate: "required|ddmm",
-      course: "required|string",
+      birthdate: "ddmm",
+      course: "string",
       language: "required|string",
       gender: "required|in:m,f",
     };
@@ -168,12 +154,8 @@ const ProfileForm = () => {
       formData.email &&
       formData.username &&
       formData.phone &&
-      formData.matricule &&
       formData.passport &&
-      formData.algerianId &&
       formData.country &&
-      formData.birthdate &&
-      formData.course &&
       formData.language &&
       formData.gender &&
       !Object.values(errors).some(Boolean)
@@ -182,8 +164,6 @@ const ProfileForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    console.log(Object.values(errors), formData);
 
     if (!isFormValid()) {
       toast.error("Please fill in all required fields");
@@ -206,7 +186,6 @@ const ProfileForm = () => {
         language: formData.language,
         gender: formData.gender,
       });
-      console.log(data);
       if (data?.status) {
         toast.success("Profile updated successfully!");
         router.push("/home");
@@ -269,30 +248,15 @@ const ProfileForm = () => {
           </div>
           <Card className="p-0 max-w-3xl w-full gap-0 bg-[#fff7]">
             <CardHeader className="gap-6 px-6 pt-4 border-b border-theme-gold pb-4">
-              {!shouldForceEditMode && (
-                <div className="flex items-center justify-between gap-4 rounded-md border border-theme-gold/30 bg-[#fff4] px-3 py-2">
-                  <div className="flex flex-col">
-                    <p className="text-sm font-medium text-primary">
-                      Enable profile editing
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      Turn this on to confirm you want to modify your account
-                      details.
-                    </p>
-                  </div>
-                  <Switch
-                    checked={isEditEnabled}
-                    onCheckedChange={setIsEditEnabled}
-                    aria-label="Enable profile editing"
-                  />
-                </div>
-              )}
               <div className="flex flex-col gap-2">
                 <h2 className="text-base font-medium text-card-foreground">
                   Edit your profile
                 </h2>
                 <p className="text-xs text-theme-gold font-medium bg-[#fff3] p-2 rounded">
-                  * All fields are required
+                  * You can't submit without the compulsory fields
+                </p>
+                <p className="text-xs text-theme-gold font-medium bg-[#fff3] p-2 rounded">
+                  The optional fields are however necessary too.
                 </p>
               </div>
             </CardHeader>
@@ -300,10 +264,10 @@ const ProfileForm = () => {
               <div className="flex sm:flex-row flex-col gap-6">
                 <div className="max-w-md w-full md:pe-10 sm:border-e border-theme-gold sm:order-first order-last">
                   <form className="flex flex-col gap-6">
-                    <fieldset
-                      disabled={!canEditProfile}
-                      className="flex flex-col gap-4 *:bg-[#fff5] *:p-2 *:rounded-md disabled:opacity-70"
-                    >
+                    <fieldset className="flex flex-col gap-4 *:bg-[#fff5] *:p-2 *:rounded-md disabled:opacity-70">
+                      <div className="compulsory bg-transparent!">
+                        compulsory fields
+                      </div>
                       <Field className="gap-1.5">
                         <FieldLabel
                           htmlFor="name"
@@ -406,7 +370,7 @@ const ProfileForm = () => {
                           htmlFor="phone"
                           className="text-sm text-muted-foreground font-normal"
                         >
-                          Phone
+                          Phone (whatsapp)
                         </FieldLabel>
                         <Input
                           id="phone"
@@ -424,33 +388,10 @@ const ProfileForm = () => {
                       </Field>
                       <Field className="gap-1.5">
                         <FieldLabel
-                          htmlFor="matricule"
-                          className="text-sm text-muted-foreground font-normal"
-                        >
-                          Matricule
-                        </FieldLabel>
-                        <Input
-                          id="matricule"
-                          type="text"
-                          value={formData.matricule}
-                          onChange={(e) =>
-                            handleChange("matricule", e.target.value)
-                          }
-                          required
-                          className="dark:bg-background h-9 text-sm shadow-xs text-muted-foreground font-normal"
-                        />
-                        {errors.matricule && (
-                          <p className="text-red-500 text-sm">
-                            {errors.matricule}
-                          </p>
-                        )}
-                      </Field>
-                      <Field className="gap-1.5">
-                        <FieldLabel
                           htmlFor="passport"
                           className="text-sm text-muted-foreground font-normal"
                         >
-                          Passport
+                          Passport number
                         </FieldLabel>
                         <Input
                           id="passport"
@@ -465,29 +406,6 @@ const ProfileForm = () => {
                         {errors.passport && (
                           <p className="text-red-500 text-sm">
                             {errors.passport}
-                          </p>
-                        )}
-                      </Field>
-                      <Field className="gap-1.5">
-                        <FieldLabel
-                          htmlFor="algerianId"
-                          className="text-sm text-muted-foreground font-normal"
-                        >
-                          Algerian ID
-                        </FieldLabel>
-                        <Input
-                          id="algerianId"
-                          type="text"
-                          value={formData.algerianId}
-                          onChange={(e) =>
-                            handleChange("algerianId", e.target.value)
-                          }
-                          required
-                          className="dark:bg-background h-9 text-sm shadow-xs text-muted-foreground font-normal"
-                        />
-                        {errors.algerianId && (
-                          <p className="text-red-500 text-sm">
-                            {errors.algerianId}
                           </p>
                         )}
                       </Field>
@@ -532,25 +450,80 @@ const ProfileForm = () => {
                       </Field>
                       <Field className="gap-1.5">
                         <FieldLabel
-                          htmlFor="birthdate"
+                          htmlFor="language"
                           className="text-sm text-muted-foreground font-normal"
                         >
-                          Birthdate
+                          Language
+                        </FieldLabel>
+                        <Select
+                          value={formData.language}
+                          onValueChange={(value) =>
+                            handleChange("language", value)
+                          }
+                        >
+                          <SelectTrigger className="dark:bg-background h-9 text-sm shadow-xs text-muted-foreground font-normal">
+                            <SelectValue placeholder="Select language" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="french">French</SelectItem>
+                            <SelectItem value="english">English</SelectItem>
+                            <SelectItem value="portugais">
+                              Portuguese
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                        {errors.language && (
+                          <p className="text-red-500 text-sm">
+                            {errors.language}
+                          </p>
+                        )}
+                      </Field>
+                      <div className="optional bg-transparent! my-3">
+                        optional fields
+                      </div>
+                      <Field className="gap-1.5">
+                        <FieldLabel
+                          htmlFor="algerianId"
+                          className="text-sm text-muted-foreground font-normal"
+                        >
+                          Algerian ID (carte de sejour)
                         </FieldLabel>
                         <Input
-                          id="birthdate"
+                          id="algerianId"
                           type="text"
-                          value={formData.birthdate}
-                          placeholder="dd/mm"
+                          value={formData.algerianId}
                           onChange={(e) =>
-                            handleChange("birthdate", e.target.value)
+                            handleChange("algerianId", e.target.value)
                           }
                           required
                           className="dark:bg-background h-9 text-sm shadow-xs text-muted-foreground font-normal"
                         />
-                        {errors.birthdate && (
+                        {errors.algerianId && (
                           <p className="text-red-500 text-sm">
-                            {errors.birthdate}
+                            {errors.algerianId}
+                          </p>
+                        )}
+                      </Field>
+                      <Field className="gap-1.5">
+                        <FieldLabel
+                          htmlFor="matricule"
+                          className="text-sm text-muted-foreground font-normal"
+                        >
+                          Matricule number
+                        </FieldLabel>
+                        <Input
+                          id="matricule"
+                          type="text"
+                          value={formData.matricule}
+                          onChange={(e) =>
+                            handleChange("matricule", e.target.value)
+                          }
+                          required
+                          className="dark:bg-background h-9 text-sm shadow-xs text-muted-foreground font-normal"
+                        />
+                        {errors.matricule && (
+                          <p className="text-red-500 text-sm">
+                            {errors.matricule}
                           </p>
                         )}
                       </Field>
@@ -579,31 +552,25 @@ const ProfileForm = () => {
                       </Field>
                       <Field className="gap-1.5">
                         <FieldLabel
-                          htmlFor="language"
+                          htmlFor="birthdate"
                           className="text-sm text-muted-foreground font-normal"
                         >
-                          Language
+                          Birthdate (dd/mm)
                         </FieldLabel>
-                        <Select
-                          value={formData.language}
-                          onValueChange={(value) =>
-                            handleChange("language", value)
+                        <Input
+                          id="birthdate"
+                          type="text"
+                          value={formData.birthdate}
+                          placeholder="dd/mm"
+                          onChange={(e) =>
+                            handleChange("birthdate", e.target.value)
                           }
-                        >
-                          <SelectTrigger className="dark:bg-background h-9 text-sm shadow-xs text-muted-foreground font-normal">
-                            <SelectValue placeholder="Select language" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="french">French</SelectItem>
-                            <SelectItem value="english">English</SelectItem>
-                            <SelectItem value="portugais">
-                              Portuguese
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
-                        {errors.language && (
+                          required
+                          className="dark:bg-background h-9 text-sm shadow-xs text-muted-foreground font-normal"
+                        />
+                        {errors.birthdate && (
                           <p className="text-red-500 text-sm">
-                            {errors.language}
+                            {errors.birthdate}
                           </p>
                         )}
                       </Field>
@@ -690,7 +657,7 @@ const ProfileForm = () => {
                 </Button>
                 <Button
                   onClick={handleSubmit}
-                  disabled={!canEditProfile || !isFormValid() || isUpdating}
+                  disabled={!isFormValid() || isUpdating}
                   className="rounded-lg cursor-pointer h-9 hover:bg-primary/80 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isUpdating ? "updating..." : "Save Changes"}

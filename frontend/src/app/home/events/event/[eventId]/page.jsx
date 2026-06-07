@@ -160,7 +160,7 @@ const EventDetailsPage = ({ params }) => {
         {event && (
           <Card className="bg-[#fff5]">
             {isParticipant(event) ? (
-              <dive className="px-2 text-green-700">You're attending. 🥳</dive>
+              <div className="px-2 text-green-700">You're attending. 🥳</div>
             ) : (
               <div className="px-2 text-green-800">
                 Click "join" to subscribe to this event.
