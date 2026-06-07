@@ -8,7 +8,6 @@ import {
 } from "@/components/ui/card";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -16,12 +15,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
 import { authClient } from "@/lib/authClient";
 import { User } from "lucide-react";
 import { User2 } from "lucide-react";
-import { PersonStanding } from "lucide-react";
-import { Magnet } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 import { useEffect } from "react";
@@ -29,12 +25,11 @@ import Validator from "validatorjs";
 import { getNames } from "country-list";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { hasRequiredProfileInfo } from "@/constants/required-profile-info";
 
 const ProfileForm = () => {
   const router = useRouter();
   const { data, error, isPending } = authClient.useSession();
-  const { session, user } = data || {};
+  const { user } = data || {};
 
   const countries = getNames();
 
@@ -108,7 +103,7 @@ const ProfileForm = () => {
         if (isNaN(day) || isNaN(month)) return false;
         if (month < 1 || month > 12) return false;
 
-        const daysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+        const daysInMonth = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
         return day >= 1 && day <= daysInMonth[month - 1];
       },
@@ -170,8 +165,6 @@ const ProfileForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log(Object.values(errors), formData);
-
     if (!isFormValid()) {
       toast.error("Please fill in all required fields");
       return;
@@ -193,7 +186,6 @@ const ProfileForm = () => {
         language: formData.language,
         gender: formData.gender,
       });
-      console.log(data);
       if (data?.status) {
         toast.success("Profile updated successfully!");
         router.push("/home");
@@ -232,10 +224,6 @@ const ProfileForm = () => {
       setIsDeletingAccount(false);
     }
   };
-
-  useEffect(() => {
-    console.table(errors);
-  }, [formData]);
 
   return (
     <section className="relative py-8 sm:py-16 lg:py-20 bg-theme-gold">

@@ -30,14 +30,12 @@ export default function RequireAuth({ children }) {
     hasActiveSession && isEmailVerified && !isAccountVerified && !isPublicRoute;
 
   useEffect(() => {
-    console.log(pathname);
-  }, [pathname]);
-
-  useEffect(() => {
+    console.log(data, error, isPending);
     if (isPending) return;
 
     if (!session) {
       if (!isPublicRoute) {
+        console.log("no session");
         router.replace("/");
       }
       return;
@@ -54,6 +52,7 @@ export default function RequireAuth({ children }) {
     }
 
     if (sessionExpired) {
+      console.log("session expired");
       router.replace("/");
       return;
     }
@@ -70,8 +69,8 @@ export default function RequireAuth({ children }) {
       router.replace("/home");
     }
   }, [
+    data,
     isPending,
-    session,
     sessionExpired,
     isEmailVerified,
     isAccountVerified,
