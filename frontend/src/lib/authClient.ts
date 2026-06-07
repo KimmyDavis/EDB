@@ -11,7 +11,7 @@ export const authClient = createAuthClient({
     adminClient(),
     jwtClient({
       jwks: {
-        jwksPath: "/.well-known/jwks.json", // Must match server configuration
+        jwksPath: "/secure/jwks.json", // Must match server configuration
       },
     }),
   ],

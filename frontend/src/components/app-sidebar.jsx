@@ -146,7 +146,7 @@ export function AppSidebar() {
       </SidebarContent>
       <SidebarFooter className="bg-theme-cream">
         <PwaInstallButton />
-        <div className="usr flex flex-col text-primary capitalize">
+        <div className="usr flex flex-col text-primary">
           <span>{user?.username}</span>
           <Button
             type="button"

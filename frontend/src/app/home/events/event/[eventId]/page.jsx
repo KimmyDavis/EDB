@@ -159,6 +159,13 @@ const EventDetailsPage = ({ params }) => {
 
         {event && (
           <Card className="bg-[#fff5]">
+            {isParticipant(event) ? (
+              <dive className="px-2 text-green-700">You're attending. 🥳</dive>
+            ) : (
+              <div className="px-2 text-green-800">
+                Click "join" to subscribe to this event.
+              </div>
+            )}
             <CardHeader>
               <h2 className="text-xl font-bold text-slate-900">
                 {event.title}
@@ -183,25 +190,12 @@ const EventDetailsPage = ({ params }) => {
                       : "Free"}
                   </p>
                 </div>
-                <div>
-                  <p className="font-semibold text-slate-700">Participants</p>
-                  <p className="text-slate-800">{participantCount(event)}</p>
-                </div>
               </div>
 
               {event.description && (
                 <div className="mt-4 border-t border-slate-200 pt-4">
                   <p className="font-semibold text-slate-700">Description</p>
                   <p className="text-slate-800 mt-1">{event.description}</p>
-                </div>
-              )}
-
-              {event.maxParticipants && (
-                <div className="mt-4 border-t border-slate-200 pt-4">
-                  <p className="font-semibold text-slate-700">Capacity</p>
-                  <p className="text-slate-800">
-                    {participantCount(event)} / {event.maxParticipants}
-                  </p>
                 </div>
               )}
             </CardContent>
@@ -222,7 +216,9 @@ const EventDetailsPage = ({ params }) => {
                           action,
                         }).unwrap();
                         toast.success(
-                          action === "join" ? "Joined event" : "Left event",
+                          action === "join"
+                            ? "Joined event 🥳"
+                            : "Left event 😔",
                         );
                         refetch();
                       } catch (err) {
@@ -248,7 +244,12 @@ const EventDetailsPage = ({ params }) => {
                   )}
                 </>
               )}
-              <EventShare eventId={event._id || event.id} className="ml-auto" />
+              {user.role == "admin" && (
+                <EventShare
+                  eventId={event._id || event.id}
+                  className="ml-auto"
+                />
+              )}
             </div>
           </Card>
         )}
