@@ -47,7 +47,8 @@
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.4.0",
     "tailwind-variants": "^3.2.2",
-    "validatorjs": "^3.22.1"
+    "validatorjs": "^3.22.1",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
