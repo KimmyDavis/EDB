@@ -153,6 +153,26 @@ const EventsPage = () => {
     }
   };
 
+  const joinOrLeave = async (event) => {
+    const action = isParticipant(event) ? "leave" : "join";
+    // if trying to join but not allowed, do nothing
+    if (action === "join" && !canJoin(event)) {
+      toast.error("Cannot join this event");
+      return;
+    }
+    try {
+      await joinOrLeaveEvent({
+        eventId: event._id || event.id,
+        userId,
+        action,
+      }).unwrap();
+      toast.success(action === "join" ? "Joined event" : "Left event");
+      refetch();
+    } catch (err) {
+      toast.error(err?.data?.message || "Unable to change participation");
+    }
+  };
+
   return (
     <div className="relative bg-theme-gold/90 min-h-screen p-6">
       <Image
@@ -255,22 +275,29 @@ const EventsPage = () => {
         {/* Events Grid */}
         {!isLoading && !error && filteredEvents.length > 0 && (
           <div className="max-w-6xl mx-auto">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="flex flex-row flex-wrap gap-6">
               {filteredEvents.map((event) => (
                 <Card
                   key={event._id || event.id}
-                  className="bg-[#fff5] flex flex-col overflow-hidden hover:shadow-lg transition-shadow"
+                  className="bg-[#fff5] w-max flex flex-col hover:shadow-lg transition-shadow"
                   style={{
                     borderTop: `4px solid ${event.theme || "#3b82f6"}`,
                   }}
                 >
-                  {/* Color Theme Bar */}
-                  {/* <div
-                    className="h-2"
-                    style={{ backgroundColor: event.theme || "#3b82f6" }}
-                  ></div> */}
-
                   <CardHeader className="pb-3">
+                    {canManageEvents && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          router.push(`/home/events/${event._id || event.id}`)
+                        }
+                        className="shrink-0 flex items-center gap-1"
+                      >
+                        <Eye size={16} />
+                        Details
+                      </Button>
+                    )}
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0">
                         <h3 className="text-lg font-bold text-slate-900 truncate">
@@ -294,20 +321,6 @@ const EventsPage = () => {
                           </span>
                         )}
                       </div>
-
-                      {canManageEvents && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() =>
-                            router.push(`/home/events/${event._id || event.id}`)
-                          }
-                          className="shrink-0 flex items-center gap-1"
-                        >
-                          <Eye size={16} />
-                          Details
-                        </Button>
-                      )}
                     </div>
                   </CardHeader>
 
@@ -324,11 +337,11 @@ const EventsPage = () => {
 
                     {/* Description */}
                     {event.description && (
-                      <div>
+                      <div className="max-w-72">
                         <p className="text-xs font-semibold text-slate-700">
                           Description
                         </p>
-                        <p className="text-sm text-slate-800 line-clamp-2">
+                        <p className="text-sm text-slate-800 line-clamp-4">
                           {event.description}
                         </p>
                       </div>
@@ -380,34 +393,7 @@ const EventsPage = () => {
                       <>
                         <Button
                           size="sm"
-                          onClick={async () => {
-                            const action = isParticipant(event)
-                              ? "leave"
-                              : "join";
-                            // if trying to join but not allowed, do nothing
-                            if (action === "join" && !canJoin(event)) {
-                              toast.error("Cannot join this event");
-                              return;
-                            }
-                            try {
-                              await joinOrLeaveEvent({
-                                eventId: event._id || event.id,
-                                userId,
-                                action,
-                              }).unwrap();
-                              toast.success(
-                                action === "join"
-                                  ? "Joined event"
-                                  : "Left event",
-                              );
-                              refetch();
-                            } catch (err) {
-                              toast.error(
-                                err?.data?.message ||
-                                  "Unable to change participation",
-                              );
-                            }
-                          }}
+                          onClick={() => joinOrLeave(event)}
                           disabled={!isParticipant(event) && !canJoin(event)}
                           className={
                             isParticipant(event)
@@ -432,7 +418,7 @@ const EventsPage = () => {
                           variant="outline"
                           size="sm"
                           onClick={() => handleEdit(event._id || event.id)}
-                          className="flex items-center gap-1"
+                          className="flex items-center gap-1 ml-auto"
                         >
                           <Edit size={16} />
                           Edit
