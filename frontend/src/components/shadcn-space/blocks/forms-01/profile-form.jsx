@@ -32,6 +32,7 @@ const ProfileForm = () => {
   const { user } = data || {};
 
   const countries = getNames();
+  // console.log(countries);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -71,20 +72,23 @@ const ProfileForm = () => {
       gender,
     } = user || {};
 
-    setFormData({
-      name: name || "",
-      email: email || "",
-      username: username || "",
-      phone: phone || "",
-      matricule: matricule || "",
-      passport: passport || "",
-      algerianId: algerianId || "",
-      country: country || "",
-      birthdate: birthdate || "",
-      course: course || "",
-      language: language || "",
-      gender: gender || "",
-    });
+    let localFormData = JSON.parse(localStorage.getItem("profileInfo")) || {};
+    if (localFormData) setFormData(localFormData);
+    else
+      setFormData({
+        name: name || "",
+        email: email || "",
+        username: username || "",
+        phone: phone || "",
+        matricule: matricule || "",
+        passport: passport || "",
+        algerianId: algerianId || "",
+        country: country || "",
+        birthdate: birthdate || "",
+        course: course || "",
+        language: language || "",
+        gender: gender || "",
+      });
   }, [user]);
 
   const handleChange = (field, value) => {
@@ -175,7 +179,7 @@ const ProfileForm = () => {
     try {
       const { data } = await authClient.updateUser({
         name: formData.name,
-        username: formData.username,
+        username: formData.username.replaceAll(" ", ""),
         phone: formData.phone,
         matricule: formData.matricule.toLocaleLowerCase(),
         passport: formData.passport,
@@ -187,6 +191,7 @@ const ProfileForm = () => {
         gender: formData.gender,
       });
       if (data?.status) {
+        localStorage.setItem("profileInfo", null);
         toast.success("Profile updated successfully!");
         router.push("/home");
       }
@@ -224,6 +229,10 @@ const ProfileForm = () => {
       setIsDeletingAccount(false);
     }
   };
+
+  useEffect(() => {
+    localStorage.setItem("profileInfo", JSON.stringify(formData));
+  }, [formData]);
 
   return (
     <section className="relative py-8 sm:py-16 lg:py-20 bg-theme-gold">
@@ -314,14 +323,17 @@ const ProfileForm = () => {
                           htmlFor="username"
                           className="text-sm text-muted-foreground font-normal"
                         >
-                          Username
+                          Username (no spaces)
                         </FieldLabel>
                         <Input
                           id="username"
                           type="text"
                           value={formData.username}
                           onChange={(e) =>
-                            handleChange("username", e.target.value)
+                            handleChange(
+                              "username",
+                              e.target.value.replaceAll(" ", ""),
+                            )
                           }
                           required
                           className="dark:bg-background h-9 text-sm shadow-xs text-muted-foreground font-normal"
