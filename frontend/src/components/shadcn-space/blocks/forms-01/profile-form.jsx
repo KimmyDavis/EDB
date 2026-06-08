@@ -72,8 +72,8 @@ const ProfileForm = () => {
       gender,
     } = user || {};
 
-    let localFormData = JSON.parse(localStorage.getItem("profileInfo")) || {};
-    if (localFormData) setFormData(localFormData);
+    let localFormData = JSON.parse(localStorage.getItem("profileInfo")) || null;
+    if (!!localFormData) setFormData(localFormData);
     else
       setFormData({
         name: name || "",
@@ -231,7 +231,8 @@ const ProfileForm = () => {
   };
 
   useEffect(() => {
-    localStorage.setItem("profileInfo", JSON.stringify(formData));
+    if (!!formData)
+      localStorage.setItem("profileInfo", JSON.stringify(formData));
   }, [formData]);
 
   return (
