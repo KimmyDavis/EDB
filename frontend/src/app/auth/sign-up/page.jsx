@@ -40,23 +40,20 @@ const page = () => {
         email,
         password,
         name,
-        username: name,
+        username: name.replaceAll(" ", ""),
         callbackURL: "/",
       },
       {
         onRequest: (ctx) => {
           setIsSubmitting(true);
-          console.log(ctx);
         },
         onSuccess: (ctx) => {
           setIsSubmitting(false);
-          console.log(ctx);
           router.push("/");
         },
         onError: (ctx) => {
           setIsSubmitting(false);
           alert(ctx.error.message);
-          console.log(ctx);
         },
       },
     );
