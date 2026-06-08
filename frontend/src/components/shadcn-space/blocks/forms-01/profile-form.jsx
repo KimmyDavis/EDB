@@ -233,6 +233,7 @@ const ProfileForm = () => {
   useEffect(() => {
     if (!!formData.email)
       localStorage.setItem("profileInfo", JSON.stringify(formData));
+    else localStorage.setItem("profileInfo", null);
   }, [formData]);
 
   return (
