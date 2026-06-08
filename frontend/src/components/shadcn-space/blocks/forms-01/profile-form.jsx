@@ -669,7 +669,7 @@ const ProfileForm = () => {
               <div className="flex gap-3 items-center w-full justify-end">
                 <Button
                   variant={"outline"}
-                  onClick={() => cancelEdit}
+                  onClick={cancelEdit}
                   className="rounded-lg cursor-pointer h-9 shadow-xs bg-red-100"
                 >
                   Cancel
