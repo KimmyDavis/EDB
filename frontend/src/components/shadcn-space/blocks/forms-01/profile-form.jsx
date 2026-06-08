@@ -191,7 +191,7 @@ const ProfileForm = () => {
         gender: formData.gender,
       });
       if (data?.status) {
-        localStorage.setItem("profileInfo", null);
+        localStorage.removeItem("profileInfo");
         toast.success("Profile updated successfully!");
         router.push("/home");
       }
@@ -221,6 +221,7 @@ const ProfileForm = () => {
         return;
       }
 
+      localStorage.removeItem("profileInfo");
       toast.success("Your account has been deleted.");
       router.push("/");
     } catch (error) {
@@ -230,10 +231,14 @@ const ProfileForm = () => {
     }
   };
 
+  const cancelEdit = () => {
+    localStorage.removeItem("profileInfo");
+    router.push("/home");
+  };
+
   useEffect(() => {
     if (!!formData.email)
       localStorage.setItem("profileInfo", JSON.stringify(formData));
-    else localStorage.setItem("profileInfo", null);
   }, [formData]);
 
   return (
@@ -664,7 +669,7 @@ const ProfileForm = () => {
               <div className="flex gap-3 items-center w-full justify-end">
                 <Button
                   variant={"outline"}
-                  onClick={() => router.push("/home")}
+                  onClick={() => cancelEdit}
                   className="rounded-lg cursor-pointer h-9 shadow-xs bg-red-100"
                 >
                   Cancel
