@@ -136,6 +136,14 @@ export default function AdminActionsPage() {
           </div>
           <Button
             type="button"
+            onClick={() => router.push("/auth/admin-actions/edit-users")}
+            disabled={isLoadingUsers}
+            className="bg-theme-gold hover:bg-theme-gold/90 ml-auto mr-1"
+          >
+            edit user info
+          </Button>
+          <Button
+            type="button"
             onClick={loadUsers}
             disabled={isLoadingUsers}
             className="bg-theme-gold hover:bg-theme-gold/90"
