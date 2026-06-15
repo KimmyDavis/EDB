@@ -243,7 +243,7 @@ const joinOrLeaveEvent = async (req, res) => {
 };
 
 const downloadEventParticipantsPdf = async (req, res) => {
-  const { eventId, fields } = req.body;
+  const { eventId, fields, format = "table" } = req.body;
   console.log(fields);
 
   if (!eventId || !mongoose.Types.ObjectId.isValid(eventId)) {
@@ -303,7 +303,6 @@ const downloadEventParticipantsPdf = async (req, res) => {
     },
     projection,
   ).lean();
-  console.log(projection);
 
   const usersById = new Map(users.map((user) => [String(user._id), user]));
   const participants = participantIds
@@ -367,23 +366,47 @@ const downloadEventParticipantsPdf = async (req, res) => {
 
   doc.font("Helvetica").fontSize(10);
 
-  participants.forEach((participant, index) => {
-    const participantName = String(participant.username || "N/A");
-    doc
-      .font("Helvetica-Bold")
-      .fontSize(12)
-      .text(`${index + 1}. ${participantName}`);
-    doc.font("Helvetica").fontSize(10);
-
-    normalizedFields.forEach((field) => {
-      const value = participant[field];
-      const formattedValue =
-        value === undefined || value === null ? "N/A" : String(value);
-      doc.text(`   - ${field}: ${formattedValue}`);
+  if (format == "table") {
+    const participantsTable = doc.table();
+    participantsTable.row(
+      normalizedFields.map((field) => {
+        return {
+          text: field.toUpperCase(),
+          align: { x: "center", y: "center" },
+          backgroundColor: "#aaa",
+        };
+      }),
+    );
+    participants.forEach((participant) => {
+      let participantRow = [];
+      normalizedFields.forEach(
+        (field) =>
+          (participantRow = [
+            ...participantRow,
+            { text: participant[field], align: { x: "left", y: "center" } },
+          ]),
+      );
+      participantsTable.row(participantRow);
     });
+  } else {
+    participants.forEach((participant, index) => {
+      const participantName = String(participant.username || "N/A");
+      doc
+        .font("Helvetica-Bold")
+        .fontSize(12)
+        .text(`${index + 1}. ${participantName}`);
+      doc.font("Helvetica").fontSize(10);
 
-    doc.moveDown(0.6);
-  });
+      normalizedFields.forEach((field) => {
+        const value = participant[field];
+        const formattedValue =
+          value === undefined || value === null ? "N/A" : String(value);
+        doc.text(`   - ${field}: ${formattedValue}`);
+      });
+
+      doc.moveDown(0.6);
+    });
+  }
 
   doc.end();
 };
