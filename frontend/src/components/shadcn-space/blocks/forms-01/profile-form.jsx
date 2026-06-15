@@ -162,6 +162,7 @@ const ProfileForm = () => {
       formData.country &&
       formData.language &&
       formData.gender &&
+      formData.matricule &&
       !Object.values(errors).some(Boolean)
     );
   };
@@ -430,6 +431,29 @@ const ProfileForm = () => {
                       </Field>
                       <Field className="gap-1.5">
                         <FieldLabel
+                          htmlFor="matricule"
+                          className="text-sm text-muted-foreground font-normal"
+                        >
+                          Matricule number
+                        </FieldLabel>
+                        <Input
+                          id="matricule"
+                          type="text"
+                          value={formData.matricule}
+                          onChange={(e) =>
+                            handleChange("matricule", e.target.value)
+                          }
+                          required
+                          className="dark:bg-background h-9 text-sm shadow-xs text-muted-foreground font-normal"
+                        />
+                        {errors.matricule && (
+                          <p className="text-red-500 text-sm">
+                            {errors.matricule}
+                          </p>
+                        )}
+                      </Field>
+                      <Field className="gap-1.5">
+                        <FieldLabel
                           htmlFor="country"
                           className="text-sm text-muted-foreground font-normal"
                         >
@@ -520,29 +544,6 @@ const ProfileForm = () => {
                         {errors.algerianId && (
                           <p className="text-red-500 text-sm">
                             {errors.algerianId}
-                          </p>
-                        )}
-                      </Field>
-                      <Field className="gap-1.5">
-                        <FieldLabel
-                          htmlFor="matricule"
-                          className="text-sm text-muted-foreground font-normal"
-                        >
-                          Matricule number
-                        </FieldLabel>
-                        <Input
-                          id="matricule"
-                          type="text"
-                          value={formData.matricule}
-                          onChange={(e) =>
-                            handleChange("matricule", e.target.value)
-                          }
-                          required
-                          className="dark:bg-background h-9 text-sm shadow-xs text-muted-foreground font-normal"
-                        />
-                        {errors.matricule && (
-                          <p className="text-red-500 text-sm">
-                            {errors.matricule}
                           </p>
                         )}
                       </Field>

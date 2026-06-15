@@ -1,6 +1,6 @@
 export const REQUIRED_PROFILE_INFO_FIELDS = [
   "phone",
-  // "matricule",
+  "matricule",
   "passport",
   // "algerianId",
   "country",
