@@ -78,7 +78,7 @@ const SongDisplay = ({ song, partTitles, className }) => {
               <h3 className="text-xl ">Verse {verseIndex + 1}:</h3>
             )}
             <div className="verse-body">
-              {song?.verses?.[verseIndex].split("\n").map((line, j) => {
+              {song?.verses?.[verseIndex]?.split("\n").map((line, j) => {
                 return (
                   <p key={j} className="">
                     {line}
