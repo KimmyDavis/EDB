@@ -1,5 +1,5 @@
 "use client";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import React from "react";
 import useAuth from "@/hooks/use-auth";
 import { SidebarTrigger } from "./ui/sidebar";
@@ -9,15 +9,20 @@ import Image from "next/image";
 import usePublicRoute from "@/hooks/use-public-route";
 import { authClient } from "@/lib/authClient";
 
+const isProjectorRoute = (pathname = "") =>
+  /^\/home\/mass\/[^/]+\/projector-view\/?$/.test(pathname);
+
 const Header = () => {
   const isMobile = useIsMobile();
   const router = useRouter();
+  const pathname = usePathname();
   const isPublicRoute = usePublicRoute();
   const { isEditor } = useAuth();
   const { data, isPending } = authClient.useSession();
   const hasSession = !!data?.session;
 
   if (isPublicRoute && (isPending || !hasSession)) return null;
+  if (isProjectorRoute(pathname)) return null;
 
   return (
     <div className="relative overflow-hidden bg-theme-gold w-full h-16 text-primary-foreground flex flex-row items-center py-12 select-none">
@@ -37,12 +42,10 @@ const Header = () => {
           isMobile ? "left-0" : "right-0"
         } backdrop-brightness-110 w-24 rotate-12`}
       />
-      {isMobile && (
-        <SidebarTrigger
-          className="z-10 pr-10 ml-auto"
-          icon={<MenuIcon className="scale-150" />}
-        />
-      )}
+      <SidebarTrigger
+        className="z-10 pr-10 ml-auto"
+        icon={<MenuIcon className="scale-150" />}
+      />
     </div>
   );
 };

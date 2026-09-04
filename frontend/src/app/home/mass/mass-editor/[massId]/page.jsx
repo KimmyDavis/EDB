@@ -143,12 +143,6 @@ const MassEditor = ({ params }) => {
     isError: massToEditIsError,
     error: massToeditError,
   } = useQueryMassQuery({ id: massId }, { skip: massId === "new" });
-  // console.log(
-  //   massToEdit,
-  //   massToEditLoading,
-  //   massToEditIsError,
-  //   massToeditError
-  // );
   const [
     createMass,
     {

@@ -23,9 +23,7 @@ app.use(cors(corsOptions));
 // using the mongodb middleware to handle multiple instamce reconnects in a serverless environment
 app.use(dbMiddleware);
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+app.listen(PORT, () => {});
 
 app.use(logger);
 app.use(express.urlencoded({ extended: true }));
@@ -54,7 +52,6 @@ app.all(/.*/, (req, res) => {
 app.use(errorHandler);
 
 mongoose.connection.on("error", (err) => {
-  console.log(err);
   if (process.env.ENV === "dev")
     logEvents(
       `${err.no}: ${err.code}\t${err.syscall}\t${err.hostname}`,

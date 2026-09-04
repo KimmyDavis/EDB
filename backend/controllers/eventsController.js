@@ -244,7 +244,6 @@ const joinOrLeaveEvent = async (req, res) => {
 
 const downloadEventParticipantsPdf = async (req, res) => {
   const { eventId, fields, format = "table" } = req.body;
-  console.log(fields);
 
   if (!eventId || !mongoose.Types.ObjectId.isValid(eventId)) {
     return res.status(400).json({ message: "A valid eventId is required." });

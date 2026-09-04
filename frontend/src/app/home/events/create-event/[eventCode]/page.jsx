@@ -179,7 +179,6 @@ const CreateEventPage = ({ params }) => {
       toast.success("Event submitted successfully!");
       router.push("/home/events");
     } catch (error) {
-      console.error("Failed to submit event:", error);
       toast.error(
         error?.data?.message ||
           "Failed to submit the event. Please try again.",

@@ -24,13 +24,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 mongoose
   .connect(process.env.DB_STRING)
   .then(() => {
-    app.listen(PORT, () => {
-      console.log(`Connected to database and running on port ${PORT}`);
-    });
+    app.listen(PORT, () => {});
   })
-  .catch((err) => {
-    console.log(err);
-  });
+  .catch((err) => {});
 app.use(logger);
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -63,7 +59,6 @@ app.all("*", (req, res) => {
 app.use(errorHandler);
 
 mongoose.connection.on("error", (err) => {
-  console.log(err);
   if (process.env.ENV === "dev")
     logEvents(
       `${err.no}: ${err.code}\t${err.syscall}\t${err.hostname}`,

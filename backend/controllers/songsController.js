@@ -155,7 +155,6 @@ const deleteSong = async (req, res) => {
       .json({ message: "Check the song id. It is either missing or invalid." });
   }
   const deleted = await Song.findByIdAndDelete(id);
-  console.log(deleted);
   if (!deleted) {
     return res
       .status(404)

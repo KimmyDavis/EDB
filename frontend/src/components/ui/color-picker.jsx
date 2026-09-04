@@ -935,9 +935,7 @@ function ColorPickerEyeDropper(props) {
         store.setColor(newColor);
         store.setHsv(newHsv);
       }
-    } catch (error) {
-      console.warn("EyeDropper error:", error);
-    }
+    } catch (error) {}
   }, [color, store]);
 
   const hasEyeDropper = typeof window !== "undefined" && !!window.EyeDropper;

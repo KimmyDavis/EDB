@@ -21,7 +21,6 @@ const dbConnect = async () => {
         : process.env.MONGODB_URL,
       opts
     );
-    console.log("reconnecting to database...");
   }
   cached.conn = await cached.promise;
   return cached.conn;

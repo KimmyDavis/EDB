@@ -16,7 +16,7 @@ import { Church } from "lucide-react";
 import { Music } from "lucide-react";
 import { Home } from "lucide-react";
 import { Button } from "./ui/button";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { authClient } from "@/lib/authClient";
 import { toast } from "sonner";
 import { useState } from "react";
@@ -83,12 +83,14 @@ export function AppSidebar() {
   const { setOpenMobile } = useSidebar();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const isPublicRoute = usePublicRoute();
+  const pathname = usePathname();
   const { data, isPending } = authClient.useSession();
   const hasSession = !!data?.session;
   const { user } = data || {};
   const userRole = user?.role;
 
   if (isPublicRoute && (isPending || !hasSession)) return null;
+  if (/^\/home\/mass\/[^/]+\/projector-view\/?$/.test(pathname)) return null;
 
   const handleNavigate = (path) => {
     router.push(path);
@@ -114,9 +116,10 @@ export function AppSidebar() {
   };
   return (
     <Sidebar
-      side="right"
+      side="left"
       variant="inset"
-      className="h-screen fixed left-0 top-0 bg-theme-cream px-0"
+      collapsible="offcanvas"
+      className="bg-theme-cream px-0"
     >
       <SidebarHeader className="bg-theme-cream">
         <h1 className="h1 font-bold text-xl text-theme-gold">EDB</h1>

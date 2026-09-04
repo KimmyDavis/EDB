@@ -32,7 +32,6 @@ const ProfileForm = () => {
   const { user } = data || {};
 
   const countries = getNames();
-  // console.log(countries);
 
   const [formData, setFormData] = useState({
     name: "",

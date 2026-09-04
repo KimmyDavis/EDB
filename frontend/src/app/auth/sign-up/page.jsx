@@ -57,8 +57,6 @@ const page = () => {
         },
       },
     );
-    console.log(data);
-    console.log(error);
   };
   return (
     <div className="relative bg-theme-gold w-full min-h-screen flex items-center justify-center">

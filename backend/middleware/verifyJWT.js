@@ -10,7 +10,6 @@ async function validateToken(token) {
     });
     return payload;
   } catch (error) {
-    console.error("Token validation failed:", error);
     throw error;
   }
 }

@@ -4,9 +4,11 @@ import MassShare from "@/components/massComponents/MassShare";
 import { useQueryMassQuery } from "@/features/mass/massApiSlice";
 import { authClient } from "@/lib/authClient";
 import { prayers } from "@/constants/prayers";
+import { canAccessRole, LITURGY_ROLE } from "@/lib/roles";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import React, { use, useEffect, useMemo, useState } from "react";
-import { ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
+import { ChevronLeft, ChevronRight, ChevronDown, Projector } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
@@ -85,7 +87,9 @@ function PrayerCarousel({
 
 const ShowMass = ({ params }) => {
   const { massCode } = use(params);
+  const router = useRouter();
   const { data: sessionData } = authClient.useSession();
+  const isAllowedProjector = canAccessRole(sessionData?.user?.role, LITURGY_ROLE);
   const preferredLanguage = useMemo(() => {
     const normalized = normalizeLanguage(sessionData?.user?.language);
     return normalized;
@@ -160,11 +164,27 @@ const ShowMass = ({ params }) => {
       />
 
       <div className="sticky top-4 right-4 sm:top-6 sm:right-6 w-full z-30">
-        <MassShare
-          massId={mass?._id || massCode}
-          iconOnly={true}
-          className="bg-theme-cream border-theme-gold ml-auto"
-        />
+        <div className="flex items-center justify-end gap-2">
+          {isAllowedProjector && (
+            <Button
+              variant="outline"
+              size="icon-sm"
+              onClick={() =>
+                router.push(`/home/mass/${massCode}/projector-view`)
+              }
+              aria-label="Open projector view"
+              title="Open projector view"
+              className="bg-theme-cream border-theme-gold"
+            >
+              <Projector size={16} />
+            </Button>
+          )}
+          <MassShare
+            massId={mass?._id || massCode}
+            iconOnly={true}
+            className="bg-theme-cream border-theme-gold ml-auto"
+          />
+        </div>
       </div>
 
       <main className="relative z-10 max-w-5xl mx-auto pt-7 sm:pt-16">

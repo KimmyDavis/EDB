@@ -128,7 +128,6 @@ const EventsPage = () => {
       await deleteEvent({ id }).unwrap();
       toast.success("Event deleted successfully!");
     } catch (error) {
-      console.error("Failed to delete event:", error);
       toast.error(
         error?.data?.message || "Failed to delete event. Please try again.",
       );

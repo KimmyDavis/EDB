@@ -20,9 +20,7 @@ const logEvents = async (message, logFileName) => {
       path.join(__dirname, "..", "logs", logFileName),
       logItem
     );
-  } catch (err) {
-    console.log(err);
-  }
+  } catch (err) {}
 };
 
 const logger = (req, res, next) => {
@@ -31,7 +29,6 @@ const logger = (req, res, next) => {
       `${req.method}\t${req.url.padEnd(15, " ")}\t${req.headers.origin}`,
       "reqLog.log"
     );
-  console.log(`${req.method} ${req.path}`);
   next();
 };
 
