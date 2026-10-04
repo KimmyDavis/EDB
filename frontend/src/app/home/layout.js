@@ -23,8 +23,17 @@ export default function DashLayout({ children }) {
     Boolean(user?.verified) &&
     hasRequiredProfileInfo(user);
 
+  // While the session is resolving, avoid flashing a blank chrome-less view.
+  if (isEventPage && isPending) {
+    return (
+      <div className="main-cont relative min-h-screen w-full flex items-center justify-center bg-theme-gold/90">
+        <span className="loader from-css" />
+      </div>
+    );
+  }
+
   // Focused, chrome-less view for non-authorized visitors on the event page.
-  const hideChrome = isEventPage && !isPending && !isFullyAuthorized;
+  const hideChrome = isEventPage && !isFullyAuthorized;
 
   if (hideChrome) {
     return (

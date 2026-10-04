@@ -6,6 +6,12 @@ import { toast } from "sonner";
 import usePublicRoute from "@/hooks/use-public-route";
 import { hasRequiredProfileInfo } from "@/constants/required-profile-info";
 import EmailVerification from "@/components/auth/emailVerification";
+import {
+  sessionIsExpired,
+  shouldRedirectToEditProfile,
+  shouldRedirectToHome,
+  shouldRedirectToLogin,
+} from "./authRedirects";
 
 export default function RequireAuth({ children }) {
   const pathname = usePathname();
@@ -16,9 +22,7 @@ export default function RequireAuth({ children }) {
   const isLoginRoute = pathname === "/";
   const isPublicRoute = usePublicRoute();
   const isEditProfileRoute = pathname === "/auth/edit-profile";
-  const sessionExpired = session
-    ? Date.now() > new Date(session.expiresAt).getTime()
-    : false;
+  const sessionExpired = sessionIsExpired(session);
   const hasActiveSession = !!session && !sessionExpired;
   const isEmailVerified = Boolean(user?.emailVerified);
   const isAccountVerified = Boolean(user?.verified);
@@ -27,6 +31,16 @@ export default function RequireAuth({ children }) {
     hasActiveSession && !isEmailVerified && !isPublicRoute;
   const needsAdminVerification =
     hasActiveSession && isEmailVerified && !isAccountVerified && !isPublicRoute;
+
+  const shouldGoToProfile = shouldRedirectToEditProfile({
+    isPending,
+    session,
+    isEmailVerified,
+    isAccountVerified,
+    hasCompleteProfile,
+    isEditProfileRoute,
+    isPublicRoute,
+  });
 
   useEffect(() => {
     if (isPending) return;
@@ -53,13 +67,7 @@ export default function RequireAuth({ children }) {
       return;
     }
 
-    if (
-      isEmailVerified &&
-      isAccountVerified &&
-      !hasCompleteProfile &&
-      !isEditProfileRoute &&
-      !isPublicRoute
-    ) {
+    if (shouldGoToProfile) {
       toast.info("Your account is missing some crucial info.", {
         position: "top-center",
       });
@@ -80,23 +88,24 @@ export default function RequireAuth({ children }) {
     hasCompleteProfile,
     isPublicRoute,
     isEditProfileRoute,
+    shouldGoToProfile,
     router,
+    session,
   ]);
 
-  const isRedirectingUnauthed = !isPending && !session && !isPublicRoute;
-  const isRedirectingIncompleteProfile =
-    !isPending &&
-    !!session &&
-    isEmailVerified &&
-    isAccountVerified &&
-    !hasCompleteProfile &&
-    !isEditProfileRoute;
-  const isRedirectingAuthedLogin =
-    !isPending &&
-    hasActiveSession &&
-    isLoginRoute &&
-    isEmailVerified &&
-    isAccountVerified;
+  const isRedirectingUnauthed = shouldRedirectToLogin({
+    isPending,
+    session,
+    isPublicRoute,
+  });
+  const isRedirectingIncompleteProfile = shouldGoToProfile;
+  const isRedirectingAuthedLogin = shouldRedirectToHome({
+    isPending,
+    hasActiveSession,
+    isLoginRoute,
+    isEmailVerified,
+    isAccountVerified,
+  });
 
   if (isPending) {
     return (
