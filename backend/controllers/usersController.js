@@ -55,6 +55,7 @@ const queryUsers = async (req, res) => {
     country,
     birthday,
     course,
+    role,
     left,
     deleted,
     verified
@@ -70,11 +71,12 @@ const queryUsers = async (req, res) => {
     "country",
     "birthday",
     "course",
+    "role",
     "left",
     "deleted",
     "verified",
   ];
-  if (!_.some(searchFields, Boolean)) {
+  if (!searchFields.some((field) => req.query[field] !== undefined)) {
     return res
       .status(400)
       .json({ message: "Please provide atleast one search parameter." });
@@ -89,10 +91,10 @@ const queryUsers = async (req, res) => {
     }
     return res.status(200).json({ user: userById });
   }
-  let query = {};
-  for (let field of searchFields) {
-    if (_.has(req.body, field)) {
-      query[field] = req.body[field];
+  const query = {};
+  for (const field of searchFields) {
+    if (req.query[field] !== undefined) {
+      query[field] = req.query[field];
     }
   }
   const users = await User.find(query).select("-password").lean();
@@ -110,7 +112,7 @@ const deleteUser = async (req, res) => {
     return res.status(400).json({ message: "Invalid user id." });
   }
   const deletedUser = await User.findByIdAndUpdate(id, { deleted: true });
-  if (!deleteUser) {
+  if (!deletedUser) {
     return res.status(400).json({ message: "Failed to delete." });
   }
   return res
@@ -162,7 +164,7 @@ const updateUser = async (req, res) => {
   const changes = {};
   for (let field of updateFields) {
     if (!_.has(req.body, field)) continue;
-    if (field == "role" && !_.indexOf(["user", "admin"], role)) {
+    if (field == "role" && _.indexOf(["user", "admin"], role) === -1) {
       return res.status(400).json({ messgae: "Invalid role." });
     }
     if (field == "birthdate" && !/^(0|1|2|3)?\d\/(0|1)?\d$/.test(birthdate)) {

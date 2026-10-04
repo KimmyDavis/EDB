@@ -21,7 +21,7 @@ const createSong = async (req, res) => {
     key,
     structure,
   } = req.body;
-  if ((!title, !service, !verses?.length)) {
+  if (!title || !service || !verses?.length) {
     return res.status(400).json({
       message:
         "either title is missing, you didn't specify the service, or you didn't provide any verse.",

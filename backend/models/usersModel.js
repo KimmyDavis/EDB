@@ -12,7 +12,7 @@ const UserSchema = new mongoose.Schema(
       enum: ["user", "admin"],
     },
     gender: {
-      typpe: String,
+      type: String,
       enum: ["m", "f"],
     },
     email: String,

@@ -15,12 +15,7 @@ const dbConnect = async () => {
       serverSelectionTimeoutMS: 5000,
       socketTimeoutMS: 45000,
     };
-    cached.promise = mongoose.connect(
-      process.env.ENV == "dev"
-        ? process.env.MONGODB_URL
-        : process.env.MONGODB_URL,
-      opts
-    );
+    cached.promise = mongoose.connect(process.env.MONGODB_URL, opts);
   }
   cached.conn = await cached.promise;
   return cached.conn;

@@ -17,14 +17,14 @@ async function validateToken(token) {
 export const checkJwt = async (req, res, next) => {
   const authHeader = req.headers.authorization || req.headers.Authorization;
   if (!authHeader?.startsWith("Bearer ")) {
-    return res.status(301).json({ message: "Unauthorized" });
+    return res.status(401).json({ message: "Unauthorized" });
   }
   const token = authHeader.split(" ")[1];
   try {
     const payload = await validateToken(token);
     req.auth = payload;
   } catch (e) {
-    res.status(301).json({ message: "Unauthorized!" });
+    return res.status(401).json({ message: "Unauthorized!" });
   }
   next();
 };

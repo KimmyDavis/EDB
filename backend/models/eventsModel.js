@@ -11,6 +11,25 @@ const EventSchema = new mongoose.Schema(
     },
     venue: String,
     description: String,
+    banner: {
+      type: String,
+      default: "",
+    },
+    translations: {
+      type: [
+        {
+          language: {
+            type: String,
+            required: true,
+          },
+          body: {
+            type: String,
+            default: "",
+          },
+        },
+      ],
+      default: [],
+    },
     fee: Number,
     maxParticipants: Number,
     deadline: Date,

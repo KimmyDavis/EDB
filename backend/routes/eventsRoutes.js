@@ -11,9 +11,12 @@ import { checkJwt } from "../middleware/verifyJWT.js";
 
 const router = express.Router();
 
+// public read access so the event detail page works for anonymous visitors
+router.route("/").get(getEvents);
+
 router.use(checkJwt);
 
-router.route("/").get(getEvents).post(createEvent).patch(updateEvent);
+router.route("/").post(createEvent).patch(updateEvent);
 router.patch("/joinOrLeave", joinOrLeaveEvent);
 router.post("/participants/pdf", downloadEventParticipantsPdf);
 

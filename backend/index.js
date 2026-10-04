@@ -9,7 +9,7 @@ import { logger, logEvents } from "./middleware/logger.js";
 import errorHandler from "./middleware/errorHandler.js";
 import corsOptions from "./config/corsOptions.js";
 import { dbMiddleware } from "./middleware/dbConnection.js";
-import { checkJwt } from "./middleware/verifyJWT.js";
+import { configure as configurePush } from "./utils/pushHelper.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -23,7 +23,11 @@ app.use(cors(corsOptions));
 // using the mongodb middleware to handle multiple instamce reconnects in a serverless environment
 app.use(dbMiddleware);
 
-app.listen(PORT, () => {});
+// Only bind a port when this file is run directly (e.g. local dev).
+// In serverless environments the exported app is invoked by the platform.
+if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
+  app.listen(PORT, () => {});
+}
 
 app.use(logger);
 app.use(express.urlencoded({ extended: true }));
@@ -35,10 +39,17 @@ import songsRoutes from "./routes/songsRoutes.js";
 import massRoutes from "./routes/massRoutes.js";
 import eventsRoutes from "./routes/eventsRoutes.js";
 import usersRoutes from "./routes/usersRoutes.js";
+import notificationsRoutes from "./routes/notificationsRoutes.js";
+import uploadsRoutes from "./routes/uploadsRoutes.js";
 app.use("/songs", songsRoutes);
 app.use("/mass", massRoutes);
 app.use("/events", eventsRoutes);
 app.use("/users", usersRoutes);
+app.use("/notifications", notificationsRoutes);
+app.use("/uploads", uploadsRoutes);
+
+// register VAPID details for web push (no-op if keys are absent)
+configurePush();
 
 app.all(/.*/, (req, res) => {
   res.status(404);

@@ -3,6 +3,23 @@ import mongoose from "mongoose";
 import _ from "lodash";
 import { User } from "../models/usersModel.js";
 import PDFDocument from "pdfkit";
+import { dispatchToAll } from "../utils/pushHelper.js";
+import { logEvents } from "../middleware/logger.js";
+
+const sanitizeTranslations = (translations) => {
+  if (!Array.isArray(translations)) return [];
+  const seen = new Set();
+  return translations
+    .map((entry) => ({
+      language: String(entry?.language || "").trim().toLowerCase(),
+      body: String(entry?.body || "").trim(),
+    }))
+    .filter((entry) => {
+      if (!entry.language || seen.has(entry.language)) return false;
+      seen.add(entry.language);
+      return true;
+    });
+};
 
 const sanitizeFilenamePart = (value) =>
   String(value)
@@ -19,6 +36,8 @@ const createEvent = async (req, res) => {
     participants,
     venue,
     description,
+    banner,
+    translations,
     fee,
     maxParticipants,
     deadline,
@@ -37,6 +56,8 @@ const createEvent = async (req, res) => {
     participants: participants ? participants : [],
     venue,
     description,
+    banner: banner || "",
+    translations: sanitizeTranslations(translations),
     fee,
     maxParticipants,
     deadline,
@@ -46,6 +67,23 @@ const createEvent = async (req, res) => {
   if (!newEvent) {
     return res.status(500).json({ message: "Failed to create event." });
   }
+
+  // notify every subscriber about the new event (never blocks the response)
+  dispatchToAll({
+    title: "EDB Event",
+    body: newEvent.title,
+    image: newEvent.banner || undefined,
+    icon: newEvent.banner || undefined,
+    tag: `event-${newEvent._id}`,
+    data: { url: `/home/events/event/${newEvent._id}` },
+    ttl: 60 * 60 * 24 * 7,
+  }).catch((err) =>
+    logEvents(
+      `event push failed: ${err?.message || err}`,
+      "pushLog.log",
+    ),
+  );
+
   return res
     .status(201)
     .json({ message: "Event created successfully.", event: newEvent });
@@ -137,13 +175,19 @@ const updateEvent = async (req, res) => {
     "footage",
     "theme",
     "description",
+    "banner",
+    "translations",
   ];
   const updates = {};
 
   // Only include allowed fields from req.body
   allowedUpdates.forEach((field) => {
     if (req.body[field] !== undefined) {
-      updates[field] = req.body[field];
+      if (field === "translations") {
+        updates[field] = sanitizeTranslations(req.body[field]);
+      } else {
+        updates[field] = req.body[field];
+      }
     }
   });
 
