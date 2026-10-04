@@ -36,16 +36,17 @@ export const prayers = {
     mas livrai-nos do mal.
 `,
     arabe: `
-    Abana alladhi fi ssamawati,
-    li yataqaddas ismouk,
-    li ya'ti malakoutouk,
-    li takoun machi'atouk,
-    kama fi ssama'i kadhalika 'ala al-ard.
-    A'tina khoubzana kafafa yawmina,
-    waghfir lana dhounoubana,
-    kama naghfirou nahnou aydan lil-moudhnibina ilayna,
-    wa la toudkhilna fi tajriba,
-    lakin najjina mina charrir.
+    A-bâna ladhî fis samawât
+    liyataqaddas ismuka, 
+    liya 'ti malukūtuka 
+    litakun machî 'atuka 
+    kama fis samâi kadhâlika 'alal 'ard 
+    A'tinâ khubzana kafâfa yauminâ 
+    waghfir lanâ khatâyanâ 
+    kamâ nahnu naghfiru 
+    liman 'asaâ 'a ilaynâ 
+    wa lâ tudkilnâ fit tajârib 
+    lakin najjinâ mina chirrir.
 `,
   },
   creed: {
