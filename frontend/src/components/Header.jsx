@@ -1,6 +1,5 @@
 "use client";
 import { useRouter, usePathname } from "next/navigation";
-import React from "react";
 import useAuth from "@/hooks/use-auth";
 import { SidebarTrigger } from "./ui/sidebar";
 import { MenuIcon } from "lucide-react";

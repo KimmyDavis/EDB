@@ -35,6 +35,18 @@ export const prayers = {
     e não nos deixeis cair em tentação,
     mas livrai-nos do mal.
 `,
+    arabe: `
+    Abana alladhi fi ssamawati,
+    li yataqaddas ismouk,
+    li ya'ti malakoutouk,
+    li takoun machi'atouk,
+    kama fi ssama'i kadhalika 'ala al-ard.
+    A'tina khoubzana kafafa yawmina,
+    waghfir lana dhounoubana,
+    kama naghfirou nahnou aydan lil-moudhnibina ilayna,
+    wa la toudkhilna fi tajriba,
+    lakin najjina mina charrir.
+`,
   },
   creed: {
     english: `

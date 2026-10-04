@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { setCredentials } from "@/features/auth/authSlice";
 import { authClient } from "@/lib/authClient";
+import { syncExistingSubscription } from "@/lib/pushClient";
 import { Eye, EyeOff } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 import Image from "next/image";
@@ -45,7 +46,8 @@ const Page = () => {
             }),
           );
         await authClient.getSession();
-        document.location = "./home";
+        await syncExistingSubscription();
+        router.replace("/home");
       },
       onError: (ctx) => {
         setIsSubmitting(false);
@@ -125,7 +127,7 @@ const Page = () => {
               disabled={isSubmitting}
               required
               placeholder=""
-              className="text-white rounded-none border-none bg-[#0003] disabled:opacity-60 disabled:cursor-not-allowed"
+              className="text-white rounded-xl border-none bg-[#0003] disabled:opacity-60 disabled:cursor-not-allowed"
             />
           </div>
           <div className="password">
@@ -140,7 +142,7 @@ const Page = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={isSubmitting}
                 required
-                className="pr-12 text-white rounded-none border-none bg-[#0003] disabled:opacity-60 disabled:cursor-not-allowed"
+                className="pr-12 text-white rounded-xl border-none bg-[#0003] disabled:opacity-60 disabled:cursor-not-allowed"
               />
               <button
                 type="button"
@@ -171,9 +173,9 @@ const Page = () => {
           <Button
             type="submit"
             disabled={isSubmitting}
-            className="w-max px-10 py-2 mx-auto rounded-none active:brightness-150"
+            className="w-full py-3 rounded-xl bg-theme-gold text-white font-semibold hover:bg-theme-gold/90 active:brightness-150"
           >
-            {isSubmitting ? "Authenticating..." : "Login"}
+            {isSubmitting ? "Authenticating..." : "Log in"}
           </Button>
         </form>
         <div className="social">

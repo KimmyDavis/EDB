@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/authClient";
+import { syncExistingSubscription } from "@/lib/pushClient";
+import { FcGoogle } from "react-icons/fc";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React from "react";
@@ -11,7 +13,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { LoaderCircle } from "lucide-react";
 
-const page = () => {
+const SignUpPage = () => {
   const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -47,8 +49,9 @@ const page = () => {
         onRequest: (ctx) => {
           setIsSubmitting(true);
         },
-        onSuccess: (ctx) => {
+        onSuccess: async (ctx) => {
           setIsSubmitting(false);
+          await syncExistingSubscription();
           router.push("/");
         },
         onError: (ctx) => {
@@ -57,6 +60,12 @@ const page = () => {
         },
       },
     );
+  };
+
+  const signUpOnGoogle = async () => {
+    await authClient.signIn.social({
+      provider: "google",
+    });
   };
   return (
     <div className="relative bg-theme-gold w-full min-h-screen flex items-center justify-center">
@@ -101,7 +110,7 @@ const page = () => {
               onChange={(e) => setName(e.target.value)}
               disabled={isSubmitting}
               required
-              className="text-white rounded-none border-none bg-[#0003] disabled:opacity-60 disabled:cursor-not-allowed"
+              className="text-white rounded-xl border-none bg-[#0003] disabled:opacity-60 disabled:cursor-not-allowed"
             />
           </div>
           <div className="email">
@@ -115,7 +124,7 @@ const page = () => {
               onChange={(e) => setEmail(e.target.value)}
               disabled={isSubmitting}
               required
-              className="text-white rounded-none border-none bg-[#0003] disabled:opacity-60 disabled:cursor-not-allowed"
+              className="text-white rounded-xl border-none bg-[#0003] disabled:opacity-60 disabled:cursor-not-allowed"
             />
           </div>
           <div className="password">
@@ -129,7 +138,7 @@ const page = () => {
               onChange={(e) => setPassword(e.target.value)}
               disabled={isSubmitting}
               required
-              className="text-white rounded-none border-none bg-[#0003] disabled:opacity-60 disabled:cursor-not-allowed"
+              className="text-white rounded-xl border-none bg-[#0003] disabled:opacity-60 disabled:cursor-not-allowed"
             />
           </div>
           <div className="re-password">
@@ -143,7 +152,7 @@ const page = () => {
               onChange={(e) => setRePassword(e.target.value)}
               disabled={isSubmitting}
               required
-              className="text-white rounded-none border-none bg-[#0003] disabled:opacity-60 disabled:cursor-not-allowed"
+              className="text-white rounded-xl border-none bg-[#0003] disabled:opacity-60 disabled:cursor-not-allowed"
             />
           </div>
           {isSubmitting && (
@@ -155,7 +164,7 @@ const page = () => {
           <Button
             type="submit"
             disabled={isSubmitting}
-            className="w-max px-10 py-2 mx-auto rounded-none min-w-40"
+            className="w-full py-3 rounded-xl bg-theme-gold text-white font-semibold hover:bg-theme-gold/90 min-w-40 active:brightness-150"
           >
             {isSubmitting ? (
               <span className="flex items-center gap-2">
@@ -163,10 +172,22 @@ const page = () => {
                 Creating...
               </span>
             ) : (
-              "Submit"
+              "Create account"
             )}
           </Button>
         </form>
+        <div className="social">
+          <div className="google w-full flex flex-row justify-center">
+            <Button
+              type="button"
+              onClick={signUpOnGoogle}
+              disabled={isSubmitting}
+              className="bg-theme-gold/90 my-5 py-5 px-6 active:brightness-150"
+            >
+              <FcGoogle className="scale-200 m-3" /> continue with google
+            </Button>
+          </div>
+        </div>
         <div className="no-account text-center mt-8">
           or{" "}
           <span
@@ -184,4 +205,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default SignUpPage;

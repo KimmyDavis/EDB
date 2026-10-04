@@ -17,6 +17,7 @@ import { Trash2, Edit, Plus, Eye } from "lucide-react";
 import { authClient } from "@/lib/authClient";
 import { canAccessRole } from "@/lib/roles";
 import { hasRequiredProfileInfo } from "@/constants/required-profile-info";
+import { getDisplayDescription } from "@/lib/eventDescription";
 
 const EventsPage = () => {
   const router = useRouter();
@@ -25,6 +26,7 @@ const EventsPage = () => {
   // authentication & role
   const { data: authData } = authClient.useSession();
   const { user } = authData || {};
+  const userLanguage = user?.language || "english";
   const isAdmin = user?.role === "admin";
   const canManageEvents = canAccessRole(user?.role, "media");
   const hasCompleteProfile = hasRequiredProfileInfo(user);
@@ -323,6 +325,19 @@ const EventsPage = () => {
                     </div>
                   </CardHeader>
 
+                  {event.banner && (
+                    <div className="relative aspect-[3/1] w-full overflow-hidden">
+                      <Image
+                        src={event.banner}
+                        alt={`${event.title} banner`}
+                        fill
+                        unoptimized
+                        sizes="(max-width: 768px) 100vw, 400px"
+                        className="object-cover"
+                      />
+                    </div>
+                  )}
+
                   <CardContent className="space-y-3 flex flex-col h-full">
                     {/* Date */}
                     <div>
@@ -340,8 +355,8 @@ const EventsPage = () => {
                         <p className="text-xs font-semibold text-slate-700">
                           Description
                         </p>
-                        <p className="text-sm text-slate-800 line-clamp-4">
-                          {event.description}
+                        <p className="text-sm text-slate-800 line-clamp-4 whitespace-pre-wrap">
+                          {getDisplayDescription(event, userLanguage)}
                         </p>
                       </div>
                     )}

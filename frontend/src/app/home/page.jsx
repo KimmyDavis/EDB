@@ -5,6 +5,8 @@ import { motion } from "framer-motion";
 import { Music, Calendar, MapPin, Clock, AlertCircle, Eye } from "lucide-react";
 import { useQueryMassQuery } from "@/features/mass/massApiSlice";
 import { useQueryEventsQuery } from "@/features/events/eventsApiSlice";
+import { getDisplayDescription } from "@/lib/eventDescription";
+import { authClient } from "@/lib/authClient";
 import MassShare from "@/components/massComponents/MassShare";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -14,6 +16,8 @@ import { useRouter } from "next/navigation";
 
 export default function Home() {
   const router = useRouter();
+  const { data: authData } = authClient.useSession();
+  const userLanguage = authData?.user?.language || "english";
   // Fetch masses and events
   const {
     data: massData,
@@ -379,12 +383,23 @@ export default function Home() {
                     key={event._id}
                     variants={itemVariants}
                     custom={index}
-                    whileHover={{ scale: 1.02 }}
                   >
                     <Card
                       onClick={() => router.push(eventUrl)}
-                      className="bg-[#fff5] border-slate-200/50 hover:border-theme-gold/50 hover:shadow-lg transition-all p-5 h-full flex flex-col"
+                      className="bg-[#fff5] border border-slate-200/50 cursor-pointer overflow-hidden transition-all duration-200 hover:shadow-lg hover:border-theme-gold/60 hover:-translate-y-0.5 active:translate-y-0 p-5 h-full flex flex-col"
                     >
+                      {event.banner && (
+                        <div className="relative mb-4 aspect-[3/1] w-full overflow-hidden rounded-md">
+                          <Image
+                            src={event.banner}
+                            alt={`${event.title} banner`}
+                            fill
+                            unoptimized
+                            sizes="(max-width: 768px) 100vw, 300px"
+                            className="object-cover"
+                          />
+                        </div>
+                      )}
                       <div className="mb-4">
                         <p className="text-xs font-semibold text-theme-gold uppercase tracking-wider">
                           {formatDate(event.date)}

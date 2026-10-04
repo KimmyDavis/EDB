@@ -8,7 +8,8 @@ export function isPublicRoutePath(pathname = "") {
     pathname === "/auth/sign-up" ||
     pathname === "/auth/forgot-password" ||
     /^\/home\/mass\/[^/]+\/?$/.test(pathname) ||
-    /^\/home\/mass\/view-mass\/[^/]+\/?$/.test(pathname)
+    /^\/home\/mass\/view-mass\/[^/]+\/?$/.test(pathname) ||
+    /^\/home\/events\/event\/[^/]+\/?$/.test(pathname)
   );
 }
 

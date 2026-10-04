@@ -31,6 +31,12 @@ import {
   ColorPickerSwatch,
   ColorPickerTrigger,
 } from "@/components/ui/color-picker";
+import EventBannerField from "@/components/eventsComponents/EventBannerField";
+import EventTranslationsField from "@/components/eventsComponents/EventTranslationsField";
+import {
+  createDefaultTranslations,
+  normalizeLanguage,
+} from "@/lib/eventDescription";
 import { useEffect } from "react";
 
 const CreateEventPage = ({ params }) => {
@@ -66,6 +72,8 @@ const CreateEventPage = ({ params }) => {
     date: "",
     venue: "",
     description: "",
+    banner: "",
+    translations: createDefaultTranslations(),
     fee: "",
     maxParticipants: "",
     deadline: "",
@@ -154,6 +162,13 @@ const CreateEventPage = ({ params }) => {
         date: formData.date,
         venue: formData.venue,
         description: formData.description,
+        banner: formData.banner || undefined,
+        translations: (formData.translations || [])
+          .map((entry) => ({
+            language: normalizeLanguage(entry.language),
+            body: (entry.body || "").trim(),
+          }))
+          .filter((entry) => entry.language),
         fee: formData.fee ? parseFloat(formData.fee) : undefined,
         maxParticipants: formData.maxParticipants
           ? parseInt(formData.maxParticipants, 10)
@@ -193,6 +208,11 @@ const CreateEventPage = ({ params }) => {
         date: eventToEdit.date,
         venue: eventToEdit.venue,
         description: eventToEdit.description,
+        banner: eventToEdit.banner || "",
+        translations:
+          eventToEdit.translations?.length
+            ? eventToEdit.translations
+            : createDefaultTranslations(),
         fee: eventToEdit.fee || "",
         maxParticipants: eventToEdit.maxParticipants || "",
         deadline: eventToEdit.deadline,
@@ -309,6 +329,27 @@ const CreateEventPage = ({ params }) => {
                   {errors.description && (
                     <p className="text-red-500 text-sm">{errors.description}</p>
                   )}
+                </Field>
+
+                <Field className="gap-1.5">
+                  <FieldLabel className="text-sm text-slate-800 font-normal">
+                    Translations
+                  </FieldLabel>
+                  <EventTranslationsField
+                    value={formData.translations}
+                    onChange={(next) => handleChange("translations", next)}
+                  />
+                </Field>
+
+                <Field className="gap-1.5">
+                  <FieldLabel className="text-sm text-slate-800 font-normal">
+                    Banner
+                  </FieldLabel>
+                  <EventBannerField
+                    value={formData.banner}
+                    onChange={(url) => handleChange("banner", url)}
+                    eventCode={eventCode}
+                  />
                 </Field>
               </div>
 

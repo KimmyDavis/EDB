@@ -152,8 +152,11 @@ const ProjectorView = ({ params }) => {
       ...Object.keys(prayers?.creed || {}),
       ...Object.keys(prayers?.LordsPrayer || {}),
     ]);
-    const ordered = ["english", "french", "portuguese"];
-    const resolved = ordered.filter((lang) => available.has(lang));
+    const preferredOrder = ["english", "french", "portuguese", "arabe"];
+    const resolved = preferredOrder.filter((lang) => available.has(lang));
+    for (const lang of available) {
+      if (!resolved.includes(lang)) resolved.push(lang);
+    }
     return resolved.length ? resolved : ["english"];
   }, []);
   const [prayerLanguageOverride, setPrayerLanguageOverride] = useState(null);

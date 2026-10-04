@@ -16,7 +16,6 @@ export default function RequireAuth({ children }) {
   const isLoginRoute = pathname === "/";
   const isPublicRoute = usePublicRoute();
   const isEditProfileRoute = pathname === "/auth/edit-profile";
-  const isEventsRoute = pathname.split("/").includes("events");
   const sessionExpired = session
     ? Date.now() > new Date(session.expiresAt).getTime()
     : false;
@@ -54,7 +53,13 @@ export default function RequireAuth({ children }) {
       return;
     }
 
-    if (!hasCompleteProfile && isEventsRoute) {
+    if (
+      isEmailVerified &&
+      isAccountVerified &&
+      !hasCompleteProfile &&
+      !isEditProfileRoute &&
+      !isPublicRoute
+    ) {
       toast.info("Your account is missing some crucial info.", {
         position: "top-center",
       });
@@ -76,7 +81,6 @@ export default function RequireAuth({ children }) {
     isPublicRoute,
     isEditProfileRoute,
     router,
-    isEventsRoute,
   ]);
 
   const isRedirectingUnauthed = !isPending && !session && !isPublicRoute;
@@ -136,7 +140,7 @@ export default function RequireAuth({ children }) {
 
   if (
     isRedirectingUnauthed ||
-    // isRedirectingIncompleteProfile ||
+    isRedirectingIncompleteProfile ||
     isRedirectingAuthedLogin
   ) {
     return (

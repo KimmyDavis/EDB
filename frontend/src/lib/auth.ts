@@ -10,6 +10,24 @@ const randomCode = customAlphabet("1234567890ABDCEFG", 8);
 const client = new MongoClient(process.env.MONGODB_URL!);
 const db = client.db();
 
+const notifyAdminsOfNewAccount = async (userId: string) => {
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URI;
+  const secret = process.env.NEXT_PUBLIC_INTERNAL_HOOK_SECRET;
+  if (!backendUrl || !secret || !userId) return;
+  try {
+    await fetch(`${backendUrl}/notifications/account-pending`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Internal-Secret": secret,
+      },
+      body: JSON.stringify({ userId }),
+    });
+  } catch (error) {
+    // never block account creation because of a notification failure
+  }
+};
+
 export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL,
   database: mongodbAdapter(db, {
@@ -147,6 +165,15 @@ export const auth = betterAuth({
         required: false,
         defaultValue: true,
         input: true,
+      },
+    },
+  },
+  databaseHooks: {
+    user: {
+      create: {
+        after: async (user: { id: string }) => {
+          await notifyAdminsOfNewAccount(user?.id);
+        },
       },
     },
   },

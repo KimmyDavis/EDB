@@ -5,6 +5,7 @@ import Image from "next/image";
 import { toast } from "sonner";
 import { Download } from "lucide-react";
 import { eventsApiSlice } from "@/features/events/eventsApiSlice";
+import { authClient } from "@/lib/authClient";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -12,6 +13,7 @@ import {
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
+import { getDisplayDescription } from "@/lib/eventDescription";
 import {
   Dialog,
   DialogContent,
@@ -49,6 +51,9 @@ const EventDetailsPage = ({ params }) => {
   const { eventId } = use(params);
   const [isDownloadOpen, setIsDownloadOpen] = useState(false);
   const [selectedFields, setSelectedFields] = useState(["name"]);
+
+  const { data: authData } = authClient.useSession();
+  const userLanguage = authData?.user?.language || "english";
 
   const {
     data: eventsResponse,
@@ -194,6 +199,18 @@ const EventDetailsPage = ({ params }) => {
                 </h2>
                 <p className="text-sm text-slate-600">{event.venue || "N/A"}</p>
               </CardHeader>
+              {event.banner && (
+                <div className="relative aspect-[3/1] w-full overflow-hidden">
+                  <Image
+                    src={event.banner}
+                    alt={`${event.title} banner`}
+                    fill
+                    unoptimized
+                    sizes="(max-width: 1024px) 100vw, 896px"
+                    className="object-cover"
+                  />
+                </div>
+              )}
               <CardContent>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
                   <div>
@@ -223,7 +240,9 @@ const EventDetailsPage = ({ params }) => {
                 {event.description && (
                   <div className="mt-4 border-t border-slate-200 pt-4">
                     <p className="font-semibold text-slate-700">Description</p>
-                    <p className="text-slate-800 mt-1">{event.description}</p>
+                    <p className="text-slate-800 mt-1 whitespace-pre-wrap">
+                      {getDisplayDescription(event, userLanguage)}
+                    </p>
                   </div>
                 )}
               </CardContent>

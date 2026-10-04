@@ -2,6 +2,7 @@ import StoreProvider from "@/lib/StoreProvider";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import RequireAuth from "@/lib/RequireAuth";
+import PushSubscriptionGate from "@/components/PushSubscriptionGate";
 export const metadata = {
   title: "Eglise de boumerdes",
   description: "Church management system for the community of boumerdes",
@@ -36,12 +37,14 @@ export default function RootLayout({ children }) {
       </head>
       <body className="font-poppins">
         <RequireAuth>
-          <StoreProvider>
-            <div className="main-cont relative min-h-screen w-full">
-              <main className="w-full bg-theme-cream/10">{children}</main>
-              <Toaster />
-            </div>
-          </StoreProvider>
+          <PushSubscriptionGate>
+            <StoreProvider>
+              <div className="main-cont relative min-h-screen w-full">
+                <main className="w-full bg-theme-cream/10">{children}</main>
+                <Toaster />
+              </div>
+            </StoreProvider>
+          </PushSubscriptionGate>
         </RequireAuth>
       </body>
     </html>
