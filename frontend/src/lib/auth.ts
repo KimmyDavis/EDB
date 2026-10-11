@@ -131,6 +131,11 @@ export const auth = betterAuth({
         required: false,
         input: true,
       },
+      dateOfBirth: {
+        type: "date",
+        required: false,
+        input: true,
+      },
       course: {
         type: "string",
         required: false,

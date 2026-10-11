@@ -15,7 +15,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Calendar } from "@/components/ui/calendar";
 import { authClient } from "@/lib/authClient";
+import { ArrowLeft } from "lucide-react";
 import { User } from "lucide-react";
 import { User2 } from "lucide-react";
 import Image from "next/image";
@@ -42,7 +44,7 @@ const ProfileForm = () => {
     passport: "",
     algerianId: "",
     country: "",
-    birthdate: "",
+    dateOfBirth: "",
     course: "",
     language: "",
     gender: "",
@@ -52,6 +54,27 @@ const ProfileForm = () => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const [showPolicyNotice, setShowPolicyNotice] = useState(false);
+
+  const REQUIRED_FIELDS = [
+    { key: "name", label: "Full Name" },
+    { key: "email", label: "Email" },
+    { key: "username", label: "Username" },
+    { key: "gender", label: "Gender" },
+    { key: "phone", label: "Phone" },
+    { key: "passport", label: "Passport number" },
+    { key: "matricule", label: "Matricule number" },
+    { key: "country", label: "Country" },
+    { key: "language", label: "Language" },
+    { key: "algerianId", label: "Algerian ID" },
+    { key: "course", label: "Course" },
+    { key: "dateOfBirth", label: "Date of birth" },
+  ];
+
+  const missingFields = REQUIRED_FIELDS.filter(
+    ({ key }) => !formData[key] || errors[key],
+  );
+  const isFieldMissing = (key) =>
+    missingFields.some((field) => field.key === key);
 
   useEffect(() => {
     if (!user) return;
@@ -65,15 +88,19 @@ const ProfileForm = () => {
       passport,
       algerianId,
       country,
-      birthdate,
+      dateOfBirth,
       course,
       language,
       gender,
     } = user || {};
 
     let localFormData = JSON.parse(localStorage.getItem("profileInfo")) || null;
-    if (!!localFormData) setFormData(localFormData);
-    else
+    if (!!localFormData) {
+      localFormData.dateOfBirth = localFormData.dateOfBirth
+        ? new Date(localFormData.dateOfBirth)
+        : "";
+      setFormData(localFormData);
+    } else
       setFormData({
         name: name || "",
         email: email || "",
@@ -83,7 +110,7 @@ const ProfileForm = () => {
         passport: passport || "",
         algerianId: algerianId || "",
         country: country || "",
-        birthdate: birthdate || "",
+        dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : "",
         course: course || "",
         language: language || "",
         gender: gender || "",
@@ -93,25 +120,13 @@ const ProfileForm = () => {
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
 
-    Validator.register(
-      "ddmm",
-      function (value) {
-        const parts = value.split("/");
-
-        if (parts.length !== 2) return false;
-
-        const day = parseInt(parts[0], 10);
-        const month = parseInt(parts[1], 10);
-
-        if (isNaN(day) || isNaN(month)) return false;
-        if (month < 1 || month > 12) return false;
-
-        const daysInMonth = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-
-        return day >= 1 && day <= daysInMonth[month - 1];
-      },
-      "The :attribute must be a valid date in dd/mm format.",
-    );
+    if (field === "dateOfBirth") {
+      setErrors((prev) => ({
+        ...prev,
+        dateOfBirth: value ? "" : "The date of birth is required.",
+      }));
+      return;
+    }
 
     // Validation rules
     const rules = {
@@ -119,12 +134,11 @@ const ProfileForm = () => {
       email: "required|email",
       username: "required|string|min:3",
       phone: "required|regex:/^\\+?\\d{9,15}$/",
-      matricule: "string|min:5",
+      matricule: "required|string|min:5",
       passport: "required|string|min:5",
-      algerianId: "string|min:6",
+      algerianId: "required|string|min:6",
       country: "required|string",
-      birthdate: "ddmm",
-      course: "string",
+      course: "required|string",
       language: "required|string",
       gender: "required|in:m,f",
     };
@@ -158,7 +172,10 @@ const ProfileForm = () => {
       formData.username &&
       formData.phone &&
       formData.passport &&
+      formData.algerianId &&
       formData.country &&
+      formData.dateOfBirth &&
+      formData.course &&
       formData.language &&
       formData.gender &&
       formData.matricule &&
@@ -185,7 +202,7 @@ const ProfileForm = () => {
         passport: formData.passport,
         algerianId: formData.algerianId,
         country: formData.country,
-        birthdate: formData.birthdate,
+        dateOfBirth: formData.dateOfBirth || null,
         course: formData.course,
         language: formData.language,
         gender: formData.gender,
@@ -236,6 +253,14 @@ const ProfileForm = () => {
     router.push("/home");
   };
 
+  const handleBack = () => {
+    if (typeof window !== "undefined" && window.history.length > 1) {
+      router.back();
+    } else {
+      router.push("/home");
+    }
+  };
+
   useEffect(() => {
     if (!!formData.email)
       localStorage.setItem("profileInfo", JSON.stringify(formData));
@@ -251,6 +276,17 @@ const ProfileForm = () => {
         className="fixed top-0 left-0 w-full h-screen object-cover z-0"
       />
       <div className="relative max-w-7xl z-10 xl:px-16 lg:px-8 px-4 mx-auto">
+        <div className="mb-4 flex justify-start">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleBack}
+            className="gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back
+          </Button>
+        </div>
         <div className="flex flex-col gap-8 items-center w-full">
           <div className="header flex flex-col gap-2 items-center justify-center">
             <Image
@@ -268,11 +304,16 @@ const ProfileForm = () => {
                 <h2 className="text-base font-medium text-card-foreground">
                   Edit your profile
                 </h2>
-                <p className="text-xs text-theme-gold font-medium bg-[#fff3] p-2 rounded">
-                  * You can't submit without the compulsory fields
-                </p>
-                <p className="text-xs text-theme-gold font-medium bg-[#fff3] p-2 rounded">
-                  The optional fields are however necessary too.
+                <p
+                  className={`text-xs font-medium bg-[#fff3] p-2 rounded ${
+                    missingFields.length ? "text-red-600" : "text-theme-gold"
+                  }`}
+                >
+                  {missingFields.length
+                    ? `* Missing fields: ${missingFields
+                        .map((field) => field.label)
+                        .join(", ")}`
+                    : "* All required fields are complete"}
                 </p>
               </div>
             </CardHeader>
@@ -284,7 +325,13 @@ const ProfileForm = () => {
                       <div className="compulsory bg-transparent!">
                         compulsory fields
                       </div>
-                      <Field className="gap-1.5">
+                      <Field
+                        className={`gap-1.5 ${
+                          isFieldMissing("name")
+                            ? "rounded-md ring-2 ring-red-300"
+                            : ""
+                        }`}
+                      >
                         <FieldLabel
                           htmlFor="name"
                           className="text-sm text-muted-foreground font-normal"
@@ -303,7 +350,13 @@ const ProfileForm = () => {
                           <p className="text-red-500 text-sm">{errors.name}</p>
                         )}
                       </Field>
-                      <Field className="gap-1.5">
+                      <Field
+                        className={`gap-1.5 ${
+                          isFieldMissing("email")
+                            ? "rounded-md ring-2 ring-red-300"
+                            : ""
+                        }`}
+                      >
                         <FieldLabel
                           htmlFor="email"
                           className="text-sm text-muted-foreground font-normal"
@@ -325,7 +378,13 @@ const ProfileForm = () => {
                           <p className="text-red-500 text-sm">{errors.email}</p>
                         )}
                       </Field>
-                      <Field className="gap-1.5">
+                      <Field
+                        className={`gap-1.5 ${
+                          isFieldMissing("username")
+                            ? "rounded-md ring-2 ring-red-300"
+                            : ""
+                        }`}
+                      >
                         <FieldLabel
                           htmlFor="username"
                           className="text-sm text-muted-foreground font-normal"
@@ -351,7 +410,13 @@ const ProfileForm = () => {
                           </p>
                         )}
                       </Field>
-                      <Field className="gap-1.5">
+                      <Field
+                        className={`gap-1.5 ${
+                          isFieldMissing("gender")
+                            ? "rounded-md ring-2 ring-red-300"
+                            : ""
+                        }`}
+                      >
                         <FieldLabel
                           htmlFor="gender"
                           className="text-sm text-muted-foreground font-normal"
@@ -384,7 +449,13 @@ const ProfileForm = () => {
                           </p>
                         )}
                       </Field>
-                      <Field className="gap-1.5">
+                      <Field
+                        className={`gap-1.5 ${
+                          isFieldMissing("phone")
+                            ? "rounded-md ring-2 ring-red-300"
+                            : ""
+                        }`}
+                      >
                         <FieldLabel
                           htmlFor="phone"
                           className="text-sm text-muted-foreground font-normal"
@@ -405,7 +476,13 @@ const ProfileForm = () => {
                           <p className="text-red-500 text-sm">{errors.phone}</p>
                         )}
                       </Field>
-                      <Field className="gap-1.5">
+                      <Field
+                        className={`gap-1.5 ${
+                          isFieldMissing("passport")
+                            ? "rounded-md ring-2 ring-red-300"
+                            : ""
+                        }`}
+                      >
                         <FieldLabel
                           htmlFor="passport"
                           className="text-sm text-muted-foreground font-normal"
@@ -428,7 +505,13 @@ const ProfileForm = () => {
                           </p>
                         )}
                       </Field>
-                      <Field className="gap-1.5">
+                      <Field
+                        className={`gap-1.5 ${
+                          isFieldMissing("matricule")
+                            ? "rounded-md ring-2 ring-red-300"
+                            : ""
+                        }`}
+                      >
                         <FieldLabel
                           htmlFor="matricule"
                           className="text-sm text-muted-foreground font-normal"
@@ -451,7 +534,13 @@ const ProfileForm = () => {
                           </p>
                         )}
                       </Field>
-                      <Field className="gap-1.5">
+                      <Field
+                        className={`gap-1.5 ${
+                          isFieldMissing("country")
+                            ? "rounded-md ring-2 ring-red-300"
+                            : ""
+                        }`}
+                      >
                         <FieldLabel
                           htmlFor="country"
                           className="text-sm text-muted-foreground font-normal"
@@ -490,7 +579,13 @@ const ProfileForm = () => {
                           </p>
                         )}
                       </Field>
-                      <Field className="gap-1.5">
+                      <Field
+                        className={`gap-1.5 ${
+                          isFieldMissing("language")
+                            ? "rounded-md ring-2 ring-red-300"
+                            : ""
+                        }`}
+                      >
                         <FieldLabel
                           htmlFor="language"
                           className="text-sm text-muted-foreground font-normal"
@@ -520,10 +615,13 @@ const ProfileForm = () => {
                           </p>
                         )}
                       </Field>
-                      <div className="optional bg-transparent! my-3">
-                        optional fields
-                      </div>
-                      <Field className="gap-1.5">
+                      <Field
+                        className={`gap-1.5 ${
+                          isFieldMissing("algerianId")
+                            ? "rounded-md ring-2 ring-red-300"
+                            : ""
+                        }`}
+                      >
                         <FieldLabel
                           htmlFor="algerianId"
                           className="text-sm text-muted-foreground font-normal"
@@ -546,7 +644,13 @@ const ProfileForm = () => {
                           </p>
                         )}
                       </Field>
-                      <Field className="gap-1.5">
+                      <Field
+                        className={`gap-1.5 ${
+                          isFieldMissing("course")
+                            ? "rounded-md ring-2 ring-red-300"
+                            : ""
+                        }`}
+                      >
                         <FieldLabel
                           htmlFor="course"
                           className="text-sm text-muted-foreground font-normal"
@@ -569,27 +673,45 @@ const ProfileForm = () => {
                           </p>
                         )}
                       </Field>
-                      <Field className="gap-1.5">
+                      <Field
+                        className={`gap-1.5 ${
+                          isFieldMissing("dateOfBirth")
+                            ? "rounded-md ring-2 ring-red-300"
+                            : ""
+                        }`}
+                      >
                         <FieldLabel
-                          htmlFor="birthdate"
+                          htmlFor="dateOfBirth"
                           className="text-sm text-muted-foreground font-normal"
                         >
-                          Birthdate (dd/mm)
+                          Date of birth
                         </FieldLabel>
-                        <Input
-                          id="birthdate"
-                          type="text"
-                          value={formData.birthdate}
-                          placeholder="dd/mm"
-                          onChange={(e) =>
-                            handleChange("birthdate", e.target.value)
-                          }
-                          required
-                          className="dark:bg-background h-9 text-sm shadow-xs text-muted-foreground font-normal"
-                        />
-                        {errors.birthdate && (
+                        <div className="scale-90 origin-top-left">
+                          <Calendar
+                            key={
+                              formData.dateOfBirth ? "dob-set" : "dob-empty"
+                            }
+                            mode="single"
+                            selected={
+                              formData.dateOfBirth
+                                ? new Date(formData.dateOfBirth)
+                                : undefined
+                            }
+                            onSelect={(val) =>
+                              handleChange("dateOfBirth", val || "")
+                            }
+                            captionLayout="dropdown"
+                            defaultMonth={
+                              formData.dateOfBirth
+                                ? new Date(formData.dateOfBirth)
+                                : undefined
+                            }
+                            className="rounded-lg border max-w-80 w-full"
+                          />
+                        </div>
+                        {errors.dateOfBirth && (
                           <p className="text-red-500 text-sm">
-                            {errors.birthdate}
+                            {errors.dateOfBirth}
                           </p>
                         )}
                       </Field>

@@ -26,6 +26,7 @@ const UserSchema = new mongoose.Schema(
     algerianId: String,
     country: String,
     birthdate: String,
+    dateOfBirth: Date,
     course: String,
     picture: {
       type: String,

@@ -24,6 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Calendar } from "@/components/ui/calendar";
 
 const INITIAL_FORM_STATE = {
   name: "",
@@ -34,7 +35,7 @@ const INITIAL_FORM_STATE = {
   passport: "",
   algerianId: "",
   country: "",
-  birthdate: "",
+  dateOfBirth: "",
   course: "",
   language: "",
   gender: "",
@@ -127,7 +128,9 @@ export default function EditUsersPage() {
       passport: selectedUser.passport || "",
       algerianId: selectedUser.algerianId || "",
       country: selectedUser.country || "",
-      birthdate: selectedUser.birthdate || "",
+      dateOfBirth: selectedUser.dateOfBirth
+        ? new Date(selectedUser.dateOfBirth)
+        : "",
       course: selectedUser.course || "",
       language: selectedUser.language || "",
       gender: selectedUser.gender || "",
@@ -173,7 +176,7 @@ export default function EditUsersPage() {
         passport: formData.passport,
         algerianId: formData.algerianId,
         country: formData.country,
-        birthdate: formData.birthdate,
+        dateOfBirth: formData.dateOfBirth || null,
         course: formData.course,
         language: formData.language,
         gender: formData.gender,
@@ -482,14 +485,26 @@ export default function EditUsersPage() {
                     <div className="grid gap-4 sm:grid-cols-2">
                       <div className="space-y-2">
                         <label className="text-sm font-medium text-slate-700">
-                          Birthdate
+                          Date of birth
                         </label>
-                        <Input
-                          value={formData.birthdate}
-                          onChange={(event) =>
-                            handleChange("birthdate", event.target.value)
+                        <Calendar
+                          key={formData.dateOfBirth ? "dob-set" : "dob-empty"}
+                          mode="single"
+                          selected={
+                            formData.dateOfBirth
+                              ? new Date(formData.dateOfBirth)
+                              : undefined
                           }
-                          placeholder="dd/mm/yyyy"
+                          onSelect={(val) =>
+                            handleChange("dateOfBirth", val || "")
+                          }
+                          captionLayout="dropdown"
+                          defaultMonth={
+                            formData.dateOfBirth
+                              ? new Date(formData.dateOfBirth)
+                              : undefined
+                          }
+                          className="rounded-lg border"
                         />
                       </div>
                       <div className="space-y-2">
@@ -748,14 +763,26 @@ export default function EditUsersPage() {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-slate-700">
-                    Birthdate
+                    Date of birth
                   </label>
-                  <Input
-                    value={formData.birthdate}
-                    onChange={(event) =>
-                      handleChange("birthdate", event.target.value)
+                  <Calendar
+                    key={formData.dateOfBirth ? "dob-set" : "dob-empty"}
+                    mode="single"
+                    selected={
+                      formData.dateOfBirth
+                        ? new Date(formData.dateOfBirth)
+                        : undefined
                     }
-                    placeholder="dd/mm/yyyy"
+                    onSelect={(val) =>
+                      handleChange("dateOfBirth", val || "")
+                    }
+                    captionLayout="dropdown"
+                    defaultMonth={
+                      formData.dateOfBirth
+                        ? new Date(formData.dateOfBirth)
+                        : undefined
+                    }
+                    className="rounded-lg border"
                   />
                 </div>
                 <div className="space-y-2">
