@@ -11,7 +11,9 @@ const sanitizeTranslations = (translations) => {
   const seen = new Set();
   return translations
     .map((entry) => ({
-      language: String(entry?.language || "").trim().toLowerCase(),
+      language: String(entry?.language || "")
+        .trim()
+        .toLowerCase(),
       body: String(entry?.body || "").trim(),
     }))
     .filter((entry) => {
@@ -28,6 +30,40 @@ const sanitizeFilenamePart = (value) =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
     .slice(0, 80) || "event";
+
+// Curated user fields selectable when exporting an event's participants PDF.
+const PARTICIPANT_FIELDS = [
+  { key: "name", label: "Name", required: true },
+  { key: "username", label: "Username" },
+  { key: "email", label: "Email" },
+  { key: "phone", label: "Phone" },
+  { key: "gender", label: "Gender" },
+  { key: "role", label: "Role" },
+  { key: "matricule", label: "Matricule" },
+  { key: "passport", label: "Passport" },
+  { key: "algerianId", label: "Algerian ID" },
+  { key: "country", label: "Country" },
+  { key: "course", label: "Course" },
+  // { key: "birthdate", label: "Birthdate" },
+  { key: "dateOfBirth", label: "Date of Birth" },
+];
+
+const formatCellValue = (value) => {
+  if (value === undefined || value === null) return "N/A";
+  if (value instanceof Date) return value.toLocaleDateString("en-GB");
+  return String(value);
+};
+
+/*
+getParticipantFields
+method: GET
+does: returns the list of user fields that can be included in the participants PDF
+receives: nothing
+returns: the selectable fields with their labels and required flag
+*/
+const getParticipantFields = async (req, res) => {
+  return res.status(200).json({ fields: PARTICIPANT_FIELDS });
+};
 
 const createEvent = async (req, res) => {
   const {
@@ -78,10 +114,7 @@ const createEvent = async (req, res) => {
     data: { url: `/home/events/event/${newEvent._id}` },
     ttl: 60 * 60 * 24 * 7,
   }).catch((err) =>
-    logEvents(
-      `event push failed: ${err?.message || err}`,
-      "pushLog.log",
-    ),
+    logEvents(`event push failed: ${err?.message || err}`, "pushLog.log"),
   );
 
   return res
@@ -426,7 +459,10 @@ const downloadEventParticipantsPdf = async (req, res) => {
         (field) =>
           (participantRow = [
             ...participantRow,
-            { text: participant[field], align: { x: "left", y: "center" } },
+            {
+              text: formatCellValue(participant[field]),
+              align: { x: "left", y: "center" },
+            },
           ]),
       );
       participantsTable.row(participantRow);
@@ -441,10 +477,7 @@ const downloadEventParticipantsPdf = async (req, res) => {
       doc.font("Helvetica").fontSize(10);
 
       normalizedFields.forEach((field) => {
-        const value = participant[field];
-        const formattedValue =
-          value === undefined || value === null ? "N/A" : String(value);
-        doc.text(`   - ${field}: ${formattedValue}`);
+        doc.text(`   - ${field}: ${formatCellValue(participant[field])}`);
       });
 
       doc.moveDown(0.6);
@@ -461,4 +494,5 @@ export {
   deleteEvent,
   joinOrLeaveEvent,
   downloadEventParticipantsPdf,
+  getParticipantFields,
 };

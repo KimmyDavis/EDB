@@ -6,6 +6,7 @@ import {
   deleteEvent,
   joinOrLeaveEvent,
   downloadEventParticipantsPdf,
+  getParticipantFields,
 } from "../controllers/eventsController.js";
 import { checkJwt } from "../middleware/verifyJWT.js";
 
@@ -18,6 +19,7 @@ router.use(checkJwt);
 
 router.route("/").post(createEvent).patch(updateEvent);
 router.patch("/joinOrLeave", joinOrLeaveEvent);
+router.get("/participant-fields", getParticipantFields);
 router.post("/participants/pdf", downloadEventParticipantsPdf);
 
 router.delete("/:id", deleteEvent);

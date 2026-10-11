@@ -24,6 +24,13 @@ export const eventsApiSlice = apiSlice.injectEndpoints({
       keepUnusedDataFor: 3 * 60 * 60,
       providesTags: () => [{ type: "Events", id: "LIST" }],
     }),
+    participantFields: builder.query({
+      query: () => ({
+        url: "/events/participant-fields",
+        method: "GET",
+      }),
+      keepUnusedDataFor: 60 * 60,
+    }),
     createEvent: builder.mutation({
       query: (eventData) => ({
         url: "/events",
@@ -119,6 +126,7 @@ export const selectAllEvents = createSelector(
 
 export const {
   useQueryEventsQuery,
+  useParticipantFieldsQuery,
   useCreateEventMutation,
   useUpdateEventMutation,
   useJoinOrLeaveEventMutation,

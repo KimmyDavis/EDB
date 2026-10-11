@@ -23,16 +23,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-const DOWNLOAD_FIELDS = [
-  { key: "name", label: "Name", required: true },
-  { key: "course", label: "Course" },
-  { key: "matricule", label: "Matricule" },
-  { key: "passport", label: "Passport" },
-  { key: "phone", label: "Phone Number" },
-  { key: "email", label: "Email" },
-  { key: "algerianId", label: "Algerian ID" },
-];
-
 const formatDate = (dateString) => {
   if (!dateString) return "N/A";
   try {
@@ -73,6 +63,9 @@ const EventDetailsPage = ({ params }) => {
 
   const [downloadParticipantsPdf, { isLoading: isDownloading }] =
     eventsApiSlice.useDownloadEventParticipantsPdfMutation();
+
+  const { data: fieldsData } = eventsApiSlice.useParticipantFieldsQuery();
+  const downloadFields = fieldsData?.fields ?? [];
 
   const event = useMemo(() => {
     return eventsResponse?.events?.[0] || eventsResponse?.event || null;
@@ -335,8 +328,11 @@ const EventDetailsPage = ({ params }) => {
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-2">
-            {DOWNLOAD_FIELDS.map((field) => {
+          <div className="max-h-80 space-y-2 overflow-y-auto">
+            {downloadFields.length === 0 && (
+              <p className="text-sm text-slate-500">Loading fields...</p>
+            )}
+            {downloadFields.map((field) => {
               const checked = selectedFields.includes(field.key);
               return (
                 <label
