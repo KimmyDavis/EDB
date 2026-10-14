@@ -50,7 +50,11 @@ const PARTICIPANT_FIELDS = [
 
 const formatCellValue = (value) => {
   if (value === undefined || value === null) return "N/A";
-  if (value instanceof Date) return value.toLocaleDateString("en-GB");
+  if (value instanceof Date)
+    return new Date(value.getTime() + 60 * 60 * 1000).toLocaleDateString(
+      "en-GB",
+      { timeZone: "UTC" },
+    );
   return String(value);
 };
 
